@@ -1,0 +1,48 @@
+\section{Intoduction}
+
+% Instructions for running a program can be classified into two categories. One is deterministic, meaning that each run of the program will have the same result. The other is non-deterministic, which will lead to different results when executed in different circumstances. Although much of the CPU execution is deterministic, non-deterministic instructions also matters. This is mainly due to the fact that the execution of a program is not in an isolated system. As a matter of fact, the operating system plays a critical role in program initialization, system calls, and scheduling throughout the program lifecycle. Typical sources of nondeterminism include system calls, interrupts, signals, and data contention for parallel programs.
+
+% All these non-deterministic events can be further classified into two types: inconstancy of the data flow - for example, certain system calls such as `getrandom()` and `getpid()`, and inconstancy of the control flow - for example, data contention due to signals and parallel programs. As a result, we need to keep track of the entire data flow and control flow of the original run. There has been a lot of research on control flow and data flow tracing, and there are now many hardware methods (e.g., Intel PT and ARM ETM) that assist in achieving low-consumption control flow logging. There are also various data flow logging methods, but many do not intend to do such tracing, and thus do not strike a good balance between performance and effectiveness. As a result, low-consumption tracing of data flow remains an issue.
+
+\subsection{Problem Description}
+
+The program would often fail. To sufficiently understand and prevent failures,
+developers requires firstly reproduce these bugs, which ensures the same output
+and bugs no matter how many times it is re-executed. However, directly
+re-exection is not suitable for non-deterministic failures, as they may not
+appear in a re-rection procedure. Non-deterministic failures are the consequence
+of non-deterministic instructions. 
+
+Instructions for running a program can be divided into two categories. One is
+deterministic, i.e., the behavior of the program is determined in each
+execution. The other type is non-deterministic, meaning that execution in
+different situations will have different results. Although most of the CPU
+execution is deterministic, non-deterministic instructions are also pervasive.
+This is mainly because of the fact that the execution of a program is not in an
+isolated system. In fact, the operating system plays a critical role in program
+initialization, system calls, and scheduling throughout the program lifecycle.
+Typical sources of nondeterminism include system calls, interrupts, signals, and
+data races for concurrency programs.
+
+All these non-deterministic events can be futher classified into two types:
+inconstancy of the data flow - for example, certain system calls such as
+\texttt{getrandom()} and \texttt{getpid()}, and inconstancy of the control flow
+- for example, concurrency bug due to memory access in inconsistent order. 
+
+
+
+\subsection{Current Solutions}
+
+Record-and-replay is a type of approaches that addresses this challenge. Most
+Record-and-replay systems work by first recording non-deterministic events
+during the original run of a program and then substituting these records during
+subsequent re-execution. Record-and-replay system could ultimately guarante that
+each replay will be identical with the initial version. The fact that a number
+of replay systems have been built and put into use in recent years illustrates
+the value of record-and-replay systems in practice.\cite{203227}
+
+There are several ways to capture calls inline at raw runtime:\dots
+
+\subsection{General Idea}
+In this thesis, I propose a novel calls capturing tools.
+

@@ -192,7 +192,8 @@
     {\粗体\三号
       \begin{tabular}{rr}
         Thesis Title:   & \下划线[9cm]{\题目@英}     \\[9pt]
-        & \下划线[9cm]{\子标题@英}   \\[2.1cm]
+        & \下划线[9cm]{中期报告}   
+        \\[2.1cm]
         Student Name:   & \下划线[9cm]{\姓名@英}     \\[9pt]
         Student ID:     & \下划线[9cm]{\学号@英}     \\[9pt]
         Department:     & \下划线[9cm]{\系别@英}     \\[9pt]
@@ -250,10 +251,10 @@
 \RequirePackage{listofitems}
 \newcommand\摘要标题{
   \begin{center}
-    \黑体\二号\题目@中\\\子标题@中
+    \textsc{\黑体\二号\题目@中\\\子标题@英}
     \vskip 1cm
-    \宋体\四号\姓名@中 \\[9pt]
-    （\楷书\小四\系别@中\phantom{空}指导教师： \指导老师@中）
+    \宋体\四号\姓名@英 \\[9pt]
+    (\楷书\小四\系别@英\phantom{空}Advisor: \指导老师@英)
   \end{center}
   \vskip 1.5cm
 }
@@ -282,26 +283,26 @@
 % 参考文献
 \newcommand{\参考文献}{
   % 或者可以将refname置空, 按照附录的样式修改.
-  \addcontentsline{toc}{section}{参考文献}
+  \addcontentsline{toc}{section}{Bibliography}
   \sectionmark{参考文献}
-  \section*{\centerline{参考文献}}
+  \section*{\centerline{Bibliography}}
 }
 % 附录
 \newcommand{\附录}{
   \clearpage
-  \addcontentsline{toc}{section}{附录}
+  \addcontentsline{toc}{section}{Appendix}
   \addtocounter{section}{1}
   \sectionmark{附录}
   \begin{center}
-    \黑体\三号 附录
+    \黑体\三号 Appendix
   \end{center}
   \appendix
 }
 % 致谢
 \newcommand{\致谢}{
-  \addcontentsline{toc}{section}{致谢}
+  \addcontentsline{toc}{section}{Acknowledgement}
   \sectionmark{致谢}
-  \section*{\centerline{致谢}}
+  \section*{\centerline{Acknowledgement}}
 }
 
 \endinput

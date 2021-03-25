@@ -1,6 +1,6 @@
 % !Mode:: "TeX:UTF-8"
 % !TEX program  = xelatex
-\documentclass[AutoFakeBold,AutoFakeSlant,scheme=chinese,degree=bachelor,zihao=-4]{sustechthesis}
+\documentclass[AutoFakeBold,AutoFakeSlant,scheme=plain,degree=bachelor,zihao=-4]{sustechthesis}
 % 1. AutoFakeBold 与 AutoFakeSlant 为伪粗与伪斜，如果本机上有相应粗体与斜体字体，请使用 xeCJK 宏包进行设置，例如：
 %   \setCJKmainfont[
 %     UprightFont = * Light,
@@ -23,24 +23,27 @@
 
 \input{config/preamble.tex} % 导言区
 \input{config/info.tex} % 论文信息
+
+
 \begin{document}
 
-\中文标题页\英文标题页
-\中文诚信承诺书\英文诚信承诺书
+\英文标题页
+\英文诚信承诺书
 \摘要标题
 \input{sections/examples/abstract.tex} % 论文摘要
 
 \目录\clearpage % 目录及换页
 
-\input{sections/examples/disclaimer.tex}
-\input{sections/examples/interface.tex}
-\input{sections/examples/figures.tex}
-\input{sections/examples/tutorial.tex}\clearpage
+\input{sections/examples/introduction.tex}
+\input{sections/examples/background.tex}
+\input{sections/examples/relatedwork.tex}
+\input{sections/examples/desgin.tex}\clearpage
 \参考文献
-  \nocite{Nicholas1998Handbook}
-  \printbibliography[heading=none]\clearpage
-\附录
-  \input{sections/examples/appendix.tex}\clearpage
-\致谢
-  \input{sections/examples/thanks.tex}
+\nocite{*}
+  \printbibliography[heading=none]
+  \clearpage
+% \附录
+%   \input{sections/examples/appendix.tex}\clearpage
+% \致谢
+  % \input{sections/examples/thanks.tex}
 \end{document}
