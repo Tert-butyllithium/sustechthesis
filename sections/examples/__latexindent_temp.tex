@@ -20,7 +20,7 @@ data races for concurrency programs.
 All these non-deterministic events can be futher classified into two types:
 inconstancy of the data flow - for example, certain system calls such as
 \texttt{getrandom} and \texttt{getpid}, and inconstancy of the control flow
-- for example, concurrency bug due to memory access in inconsistent order \cite{getrandom2}.
+- for example, concurrency bug due to memory access in inconsistent order. \cite{getrandom2}
 
 Record-and-replay is a type of approaches that addresses this challenge. Most
 Record-and-replay systems work by first recording non-deterministic events
@@ -28,35 +28,32 @@ during the original run of a program and then substituting these records during
 subsequent re-execution. Record-and-replay system could ultimately guarante that
 each replay will be identical with the initial version. The fact that a number
 of replay systems have been built and put into use in recent years illustrates
-the value of record-and-replay systems in practice \cite{203227,replay_survey,altekar_odr_2009,bhansali_framework_2006}.
+the value of record-and-replay systems in practice.\cite{203227}
 
 % There are several ways to capture calls online at runtime: \textbf{PinPlay}, \textbf{REPT}, \textbf{rr}
 
-There is a rich amount of research on record-and-replay systems, and we can find
-their various treatments of non-deterministic records. Early record-and-replay
-systems tend to use virtualization techniques so as to observe and record the
-entire program non-deterministically on the hypervisior, but the virtual machine
-is very heavy \cite{dunlap_revirt_2003, dunlap_smp-revirt_2008}. Some systems
+ .Early record-and-replay systems tend to use virtualization techniques so as to
+observe and record the entire program non-deterministically on the hypervisior,
+but the virtual machine is very heavy. \cite{dunlap_revirt_2003} Some systems
 use dynamic binary instrumentation to get the results after running each
-instruction, but this is very inefficient \cite{bhansali_framework_2006}. There
+instruction, but this is very inefficient. \cite{bhansali_framework_2006} There
 are some other systems that choose not to record at runtime in order to address
 the expensive cost of recording; instead, they infer these non-deterministic
 events based on the control flow and other information collected.
 \cite{altekar_odr_2009,cui_rept_2018}. However, inference often does not
 reproduce program execution as faithfully as records, and the time required for
-inference, which in the worst case is a search of the entire space, is a problem
-\cite{replay_survey}. There are also systems that use custom hardware, which
-inevitably affects its usefulness in practice \cite{montesinos_capo_2009}.
-Recently there have been some practical systems that have adopted tools provided
-by Linux for tracing, thus achieving better efficiency. Nevertheless, it still
-introduces a considerable overhead (50\%) and is therefore used in scenarios
-where the developer exactly needs to debug \cite{203227}.
+inference, which in the worst case is a search of the entire space, is a
+problem. There are also systems that use custom hardware, which inevitably
+affects its usefulness in practice. Recently there have been some practical
+systems that have adopted tools provided by Linux for tracing, thus achieving
+better efficiency. Nevertheless, it still introduces a considerable overhead (50\%) and
+is therefore used in scenarios where the developer exactly needs to
+debug.\cite{203227}
 
-This thesis focuses on the data record part of record-and-replay systems, precisely, the logging of non-deterministic events caused by system calls. I argue that a \textit{practical} record system should  (1) run online, meaning that the recording has little performance impact on the execution of the target program, (2) log all data without any omission, (3) work on commercial off-the-shelf  hardware, (4) not require any modification to the target program, and also (5) not require any modification to the kernel.
 
-In this thesis, I propose \$\{PROJECT\_NAME\}, a practical solution for syscall capturing. It works effectively on Linux, on commercial off-the-shelf hardware, and it can run almost imperceptibly along with the original program. 
+To solve the challenge of debugging software failures in deployed systems, we argue that we need a practical solution that enables reverse debugging of such failures
 
-% The main challenge confornt to \$\{PROJECT\_NAME\} is how to 
+In this thesis, I propose \$\{PROJECT\_NAME\}, a practical solution for syscall capturing. It works effectively on Linux systems, on commercial off-the-shelf hardware, and it can run almost imperceptibly along with the original program. There are two key ideas behind \$\{PROJECT\_NAME\}. 
 
-% I implement \$\{PROJECT\_NAME\} in three components. The hook component is a couple of callback functions that hooks the entrance and exit of each system call. The filter component are  functions 
+There are two components 
 

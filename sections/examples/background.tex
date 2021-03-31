@@ -2,7 +2,9 @@
 
 \subsection{Linux Tracepoint}
 
-Tracepoint is a lightweight hook for events provided by Linux. With tracepoint, we can provide a callback function (called a probe) at runtime for Linux to execute when these events are triggered. \cite{torvalds_torvaldslinux_2021,using_tracepoint}
+
+
+ Tracepoint is a lightweight hook for events provided by Linux. With tracepoint, we can provide a callback function (called a probe) at runtime for Linux to execute when these events are triggered. \cite{torvalds_torvaldslinux_2021,using_tracepoint}
 
 There are two events (\texttt{sys\_enter} and \texttt{sys\_exit}) defined in \texttt{/include/trace/} \texttt{events/syscalls.h} that can be exploited to execute callback function in the procedure of invloking syscall. \cite{torvalds_torvaldslinux_2021}
 
