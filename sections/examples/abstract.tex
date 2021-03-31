@@ -1,8 +1,22 @@
-% !Mode:: "TeX:UTF-8"
-% !TEX program  = xelatex
+% !Mode:: "TeX:UTF-8" !TEX program  = xelatex
 
-\begin{英文摘要}{Syscall, Record, Linux}
-    Reproducing a program is difficult. In the filed of application development,  engineers occasionally reproduce bugs only relay on bug reports uploaded by users and attempts to emulate the failure. Unfortunately, bugs are usually not reproduced such faithfully. This is mainly because the execution of a program is always accompanied by many non-deterministic events. The recording of these non-deterministic events is an effective way to address this issue. It is noticeable that system calls are the primary source of non-deterministic events, hence we need to capture these system calls.
+\begin{英文摘要}{Linux, Syscall, Record}
+    Reproducing bugs is difficult. In areas such as application development,
+    developers often encounter errors reported by users. They often have to rely
+    on the report logs uploaded by the user to try to reproduce these failures.
+    Unfortunately, bugs are usually not reproduced such faithfully. This is
+    mainly because the execution of a program is always accompanied by many
+    non-deterministic events. The recording of these non-deterministic events is
+    an effective way to address this issue. Meanwhile, it is noticeable that
+    system calls are the primary source of non-deterministic events, hence we
+    need to capture these system calls.
     
-    In this thesis, I develop a system call capturing tool. This tool utilizes Linux Tracepoint to record system calls across the entire system, with low overhead and transparent trapping. I evaluate it with real-world bugs and show that the tool works well in practice in combination with a replay system.
+    In this thesis, I developed a system call capturing tool. This tool utilizes
+    Linux Tracepoint to record system calls across the entire system, or
+    fitlering by user-determined constraints, with low overhead and transparent
+    trapping. 
+    
+    To demostrate the effectiveness and the efficiency of my research. I
+    evaluate it with real-world bugs and compare it with the state-of-the-art
+    systems.
 \end{英文摘要}

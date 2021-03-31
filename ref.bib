@@ -16,7 +16,6 @@
   issn       = {0163-5980},
   shorttitle = {{ReVirt}},
   number     = {SI},
-  
   journal    = {ACM SIGOPS Operating Systems Review},
   author     = {Dunlap, George W. and King, Samuel T. and Cinar, Sukru and Basrai, Murtaza A. and Chen, Peter M.},
   month      = dec,
@@ -24,7 +23,23 @@
   pages      = {211--224}
 }
 
-
+@article{replay_survey,
+author = {Chen, Yunji and Zhang, Shijin and Guo, Qi and Li, Ling and Wu, Ruiyang and Chen, Tianshi},
+title = {Deterministic Replay: A Survey},
+year = {2015},
+issue_date = {November 2015},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {48},
+number = {2},
+issn = {0360-0300},
+url = {https://doi.org/10.1145/2790077},
+doi = {10.1145/2790077},
+journal = {ACM Comput. Surv.},
+month = sep,
+articleno = {17},
+numpages = {47},
+}
 
 
 @article{tucek_triage_2007,
@@ -33,7 +48,6 @@
   issn       = {0163-5980},
   shorttitle = {Triage},
   number     = {6},
-  
   journal    = {ACM SIGOPS Operating Systems Review},
   author     = {Tucek, Joseph and Lu, Shan and Huang, Chengdu and Xanthos, Spiros and Zhou, Yuanyuan},
   month      = oct,
@@ -44,48 +58,161 @@
 
 
 @article{veeraraghavan_doubleplay_2012,
-	title = {{DoublePlay}: {Parallelizing} {Sequential} {Logging} and {Replay}},
-	volume = {30},
-	issn = {0734-2071},
-	shorttitle = {{DoublePlay}},
-	number = {1},
-	
-	journal = {ACM Transactions on Computer Systems},
-	author = {Veeraraghavan, Kaushik and Lee, Dongyoon and Wester, Benjamin and Ouyang, Jessica and Chen, Peter M. and Flinn, Jason and Narayanasamy, Satish},
-	month = feb,
-	year = {2012},
-	keywords = {Deterministic replay, uniparallelism},
-	pages = {3:1--3:24},
+  title      = {{DoublePlay}: {Parallelizing} {Sequential} {Logging} and {Replay}},
+  volume     = {30},
+  issn       = {0734-2071},
+  shorttitle = {{DoublePlay}},
+  number     = {1},
+  journal    = {ACM Transactions on Computer Systems},
+  author     = {Veeraraghavan, Kaushik and Lee, Dongyoon and Wester, Benjamin and Ouyang, Jessica and Chen, Peter M. and Flinn, Jason and Narayanasamy, Satish},
+  month      = feb,
+  year       = {2012},
+  keywords   = {Deterministic replay, uniparallelism},
+  pages      = {3:1--3:24}
 }
 
 
 @inproceedings{bhansali_framework_2006,
-	address = {New York, NY, USA},
-	series = {{VEE} '06},
-	title = {Framework for instruction-level tracing and analysis of program executions},
-	isbn = {978-1-59593-332-4},
-	
-	booktitle = {Proceedings of the 2nd international conference on {Virtual} execution environments},
-	publisher = {Association for Computing Machinery},
-	author = {Bhansali, Sanjay and Chen, Wen-Ke and de Jong, Stuart and Edwards, Andrew and Murray, Ron and Drinić, Milenko and Mihočka, Darek and Chau, Joe},
-	month = jun,
-	year = {2006},
-	keywords = {callback, code emulation, code replay, time-travel debugging, tracing},
-	pages = {154--163},
+  address   = {New York, NY, USA},
+  series    = {{VEE} '06},
+  title     = {Framework for instruction-level tracing and analysis of program executions},
+  isbn      = {978-1-59593-332-4},
+  booktitle = {Proceedings of the 2nd international conference on {Virtual} execution environments},
+  publisher = {Association for Computing Machinery},
+  author    = {Bhansali, Sanjay and Chen, Wen-Ke and de Jong, Stuart and Edwards, Andrew and Murray, Ron and Drinić, Milenko and Mihočka, Darek and Chau, Joe},
+  month     = jun,
+  year      = {2006},
+  keywords  = {callback, code emulation, code replay, time-travel debugging, tracing},
+  pages     = {154--163}
 }
 
 
 @inproceedings{kasikci_lazy_2017,
-	address = {Shanghai China},
-	title = {Lazy {Diagnosis} of {In}-{Production} {Concurrency} {Bugs}},
-	isbn = {978-1-4503-5085-3},
+  address   = {Shanghai China},
+  title     = {Lazy {Diagnosis} of {In}-{Production} {Concurrency} {Bugs}},
+  isbn      = {978-1-4503-5085-3},
+  language  = {en},
+  booktitle = {Proceedings of the 26th {Symposium} on {Operating} {Systems} {Principles}},
+  publisher = {ACM},
+  author    = {Kasikci, Baris and Cui, Weidong and Ge, Xinyang and Niu, Ben},
+  month     = oct,
+  year      = {2017},
+  pages     = {582--598},
+  file      = {Kasikci et al. - 2017 - Lazy Diagnosis of In-Production Concurrency Bugs.pdf:/Users/lanranli/Zotero/storage/T6MV9QR6/Kasikci et al. - 2017 - Lazy Diagnosis of In-Production Concurrency Bugs.pdf:application/pdf}
+}
+
+
+@misc{ptrace2,
+  title   = {ptrace(2) - {Linux} manual page},
+  author  = {Theodore, Ts{\textquoteright}o and Heinrich, Schuchardt and Michael, Kerrisk},
+  url     = {https://man7.org/linux/man-pages/man2/getrandom.2.html},
+  year    = {2021},
+  urldate = {2021-03-27}
+}
+
+@misc{getrandom2,
+  title   = {getrandom(2) — Linux manual page},
+  author  = {Michael, Haardt and Denys, Vlasenko},
+  url     = {https://man7.org/linux/man-pages/man2/ptrace.2.html},
+  year    = {2021},
+  urldate = {2021-03-27},
+  file    = {ptrace(2) - Linux manual page:/Users/lanranli/Zotero/storage/WWVLGMSD/ptrace.2.html:text/html}
+}
+
+
+@misc{syscall,
+  title   = {syscall(2) - {Linux} manual page},
+  author  = {{University of California}},
+  url     = {https://man7.org/linux/man-pages/man2/syscall.2.html},
+  year    = {2021},
+  urldate = {2021-03-28},
+  file    = {syscall(2) - Linux manual page:/Users/lanranli/Zotero/storage/YUQ5JW6Y/syscall.2.html:text/html}
+}
+
+
+
+@misc{torvalds_torvaldslinux_2021,
+  title     = {Linux (5.11)},
+  copyright = {GPL-2.0 WITH Linux-syscall-note},
+  url       = {https://github.com/torvalds/linux/releases/tag/v5.11},
+  abstract  = {Linux kernel source tree. Contribute to torvalds/linux development by creating an account on GitHub.},
+  urldate   = {2021-03-27},
+  author    = {Torvalds, Linus},
+  month     = mar,
+  year      = {2021},
+  note      = {original-date: 2011-09-04T22:48:12Z}
+}
+
+
+@misc{using_tracepoint,
+  title   = {Using the {Linux} {Kernel} {Tracepoints} — {The} {Linux} {Kernel} documentation},
+  url     = {https://www.kernel.org/doc/html/latest/trace/tracepoints.html},
+  urldate = {2021-03-30},
+  journal = {Using the Linux Kernel Tracepoints},
+  author  = {Mathieu, Desnoyers}
+}
+
+
+@misc{keenan_taming_2020,
+  title   = {Taming {Tracepoints} in the {Linux} {Kernel} {\textbar} {Oracle} {Linux} {Blog}},
+  url     = {https://blogs.oracle.com/linux/taming-tracepoints-in-the-linux-kernel},
+  urldate = {2021-03-30},
+  journal = {Taming Tracepoints in the Linux Kernel},
+  author  = {Keenan, Matt},
+  month   = mar,
+  year    = {2020}
+}
+
+@book{bovet_cesati_2006,
+edition = {3rd ed},
+  place     = {Farnham},
+  title     = {Understanding the Linux Kernel},
+  publisher = {OReilly},
+  author    = {Bovet, D. P. and Cesati, M.},
+  year      = {2006}
+}
+
+
+@book{corbet_linux_2005,
+	edition = {3rd ed},
+	title = {Linux device drivers},
+	isbn = {978-0-596-00590-0},
 	language = {en},
-	
-	booktitle = {Proceedings of the 26th {Symposium} on {Operating} {Systems} {Principles}},
-	publisher = {ACM},
-	author = {Kasikci, Baris and Cui, Weidong and Ge, Xinyang and Niu, Ben},
-	month = oct,
-	year = {2017},
-	pages = {582--598},
-	file = {Kasikci et al. - 2017 - Lazy Diagnosis of In-Production Concurrency Bugs.pdf:/Users/lanranli/Zotero/storage/T6MV9QR6/Kasikci et al. - 2017 - Lazy Diagnosis of In-Production Concurrency Bugs.pdf:application/pdf},
+	publisher = {O'Reilly},
+	author = {Corbet, Jonathan and Rubini, Alessandro and Kroah-Hartman, Greg and Rubini, Alessandro},
+	year = {2005},
+	keywords = {Linux device drivers (Computer programs)},
+	file = {Corbet et al. - 2005 - Linux device drivers.pdf:/Users/lanranli/Zotero/storage/8IFTYJP4/Corbet et al. - 2005 - Linux device drivers.pdf:application/pdf},
+}
+
+
+@inproceedings{altekar_odr_2009,
+	address = {Big Sky, Montana, USA},
+	title = {{ODR}: output-deterministic replay for multicore debugging},
+	isbn = {978-1-60558-752-3},
+	shorttitle = {{ODR}},
+	url = {http://portal.acm.org/citation.cfm?doid=1629575.1629594},
+	doi = {10.1145/1629575.1629594},
+	language = {en},
+	urldate = {2021-03-21},
+	booktitle = {Proceedings of the {ACM} {SIGOPS} 22nd symposium on {Operating} systems principles - {SOSP} '09},
+	publisher = {ACM Press},
+	author = {Altekar, Gautam and Stoica, Ion},
+	year = {2009},
+	pages = {193},
+}
+
+
+@inproceedings{cui_rept_2018,
+author = {Cui, Weidong and Ge, Xinyang and Kasikci, Baris and Niu, Ben and Sharma, Upamanyu and Wang, Ruoyu and Yun, Insu},
+title = {REPT: Reverse Debugging of Failures in Deployed Software},
+year = {2018},
+isbn = {9781931971478},
+publisher = {USENIX Association},
+address = {USA},
+booktitle = {Proceedings of the 13th USENIX Conference on Operating Systems Design and Implementation},
+pages = {17–32},
+numpages = {16},
+location = {Carlsbad, CA, USA},
+series = {OSDI'18}
 }

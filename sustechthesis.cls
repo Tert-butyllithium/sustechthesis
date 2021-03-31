@@ -89,13 +89,13 @@
     % 需要使用ctexart文类，否则报错键不存在
     section = {
       name={{},.},
-      format={\hspace*{-1.5em}\黑体\三号},
+      format={\hspace*{-1.5em}\粗体 \黑体\三号},
     },
     subsection = {
-      format={\黑体\四号},
+      format={\黑体\四号\粗体},
     },
     subsubsection = {
-      format={\黑体\小四},
+      format={\黑体\小四\粗体},
     },
   }
 \RequirePackage[MSWordLineSpacingMultiple=1.5]{zhlineskip}
@@ -192,7 +192,7 @@
     {\粗体\三号
       \begin{tabular}{rr}
         Thesis Title:   & \下划线[9cm]{\题目@英}     \\[9pt]
-        & \下划线[9cm]{中期报告}   
+        & \下划线[9cm]{（中期报告）}   
         \\[2.1cm]
         Student Name:   & \下划线[9cm]{\姓名@英}     \\[9pt]
         Student ID:     & \下划线[9cm]{\学号@英}     \\[9pt]

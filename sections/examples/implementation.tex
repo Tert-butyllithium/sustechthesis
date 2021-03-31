@@ -1,0 +1,26 @@
+\section{Implementation}
+\subsection{Core Hook}
+
+The part of \textit{core hook} aims to hook system call, i.e., inject custom code at the begin and the end of a system call. By leveraging \textit{core hook}, It is easy to get the return value of the system call and the changes to the parameters. Linux has provided many different approaches to achieve it, such as \textit{ptrace}, \textit{auditd}, \textit{Kprobe} and \textit{tracepoint}. 
+
+
+% \subsubsection{ptrace}
+% Ptrace is a system call that can be used for many things. By using ptrace,  a process can easily inspect and manipulate the internal state of another program, i.e., the target process. For example, debuggers like gdb can be used to see what processes are running.\cite{ptrace2} 
+
+% The ptrace mechanism allows users to interrupt the traced process each time a system call is invoked, and then apply custom analysis. Nevertheless, The challenge is that, each time a system call is invoked, a transition from the user mode to the kernel mode is required. In Linux, it will save and restore a lot of registers (e.g., all general propose registers) at the time entering and exiting kernel mode.  \cite{torvalds_torvaldslinux_2021}
+
+
+% It should be clear why ptrace is not efficient: each original signal mode switch becomes multiple mode switches. Therefore, our \textit{core hook} cannot develop basd on ptrace.
+
+% \subsubsection{auditd}
+
+% It is also very slow.
+
+% \subsection{Kprobe}
+
+% But Kprobe, with too limited in features. Kprobe-based event tracers used by perf, which did not allow the ability to dereference arbitrarily complex structures and severely limited the ability to introduce custom logic in the instrumentation phase
+
+
+\subsection{Filter}
+
+\subsection{Shared Memory}

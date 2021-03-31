@@ -1,11 +1,4 @@
 \section{Intoduction}
-
-% Instructions for running a program can be classified into two categories. One is deterministic, meaning that each run of the program will have the same result. The other is non-deterministic, which will lead to different results when executed in different circumstances. Although much of the CPU execution is deterministic, non-deterministic instructions also matters. This is mainly due to the fact that the execution of a program is not in an isolated system. As a matter of fact, the operating system plays a critical role in program initialization, system calls, and scheduling throughout the program lifecycle. Typical sources of nondeterminism include system calls, interrupts, signals, and data contention for parallel programs.
-
-% All these non-deterministic events can be further classified into two types: inconstancy of the data flow - for example, certain system calls such as `getrandom()` and `getpid()`, and inconstancy of the control flow - for example, data contention due to signals and parallel programs. As a result, we need to keep track of the entire data flow and control flow of the original run. There has been a lot of research on control flow and data flow tracing, and there are now many hardware methods (e.g., Intel PT and ARM ETM) that assist in achieving low-consumption control flow logging. There are also various data flow logging methods, but many do not intend to do such tracing, and thus do not strike a good balance between performance and effectiveness. As a result, low-consumption tracing of data flow remains an issue.
-
-\subsection{Problem Description}
-
 The program would often fail. To sufficiently understand and prevent failures,
 developers requires firstly reproduce these bugs, which ensures the same output
 and bugs no matter how many times it is re-executed. However, directly
@@ -26,12 +19,8 @@ data races for concurrency programs.
 
 All these non-deterministic events can be futher classified into two types:
 inconstancy of the data flow - for example, certain system calls such as
-\texttt{getrandom()} and \texttt{getpid()}, and inconstancy of the control flow
-- for example, concurrency bug due to memory access in inconsistent order. 
-
-
-
-\subsection{Current Solutions}
+\texttt{getrandom} and \texttt{getpid}, and inconstancy of the control flow
+- for example, concurrency bug due to memory access in inconsistent order. \cite{getrandom2}
 
 Record-and-replay is a type of approaches that addresses this challenge. Most
 Record-and-replay systems work by first recording non-deterministic events
@@ -41,8 +30,10 @@ each replay will be identical with the initial version. The fact that a number
 of replay systems have been built and put into use in recent years illustrates
 the value of record-and-replay systems in practice.\cite{203227}
 
-There are several ways to capture calls inline at raw runtime:\dots
+% There are several ways to capture calls online at runtime: \textbf{PinPlay}, \textbf{REPT}, \textbf{rr}
 
-\subsection{General Idea}
+Early record-and-replay systems tend to use virtualization techniques so as to observe and record the entire program non-deterministically on the hypervisior, but the virtual machine is very heavy. \cite{dunlap_revirt_2003} Some systems use binary staking to get the results after running each instruction, but this is very inefficient. \cite{bhansali_framework_2006} There are some other systems that choose not to record at runtime in order to address the expensive cost of recording; instead, they infer these non-deterministic events based on the control flow and other information collected. \cite{altekar_odr_2009,cui_rept_2018}. However, inference often does not reproduce program execution as faithfully as records, and the time required for inference, which in the worst case is a search of the entire space, is a problem. There are also systems that use custom hardware, which inevitably affects its usefulness in practice. 
+
+
 In this thesis, I propose a novel calls capturing tools.
 
