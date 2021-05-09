@@ -191,8 +191,7 @@
     \vskip 2.7cm
     {\粗体\三号
       \begin{tabular}{rr}
-        Thesis Title:   & \下划线[9cm]{\题目@英}     \\[9pt]
-        & \下划线[9cm]{（中期报告）}   
+        Thesis Title:   & \下划线[9cm]{\题目@英}     \\[9pt] 
         \\[2.1cm]
         Student Name:   & \下划线[9cm]{\姓名@英}     \\[9pt]
         Student ID:     & \下划线[9cm]{\学号@英}     \\[9pt]

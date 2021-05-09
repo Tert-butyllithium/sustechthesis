@@ -1,22 +1,9 @@
 % !Mode:: "TeX:UTF-8" !TEX program  = xelatex
 
 \begin{英文摘要}{Linux, Syscall, Record}
-    Reproducing bugs is difficult. In areas such as application development,
-    developers often encounter errors reported by users. They often have to rely
-    on the report logs uploaded by the user to try to reproduce these failures.
-    Unfortunately, bugs are usually not reproduced such faithfully. This is
-    mainly because the execution of a program is always accompanied by many
-    non-deterministic events. The recording of these non-deterministic events is
-    an effective way to address this issue. Meanwhile, it is noticeable that
-    system calls are the primary source of non-deterministic events, hence we
-    need to capture these system calls.
-    
-    In this thesis, I developed a system call capturing tool. This tool utilizes
-    Linux Tracepoint to record system calls across the entire system, or
-    fitlering by user-determined constraints, with low overhead and transparent
-    trapping. 
-    
-    To demostrate the effectiveness and the efficiency of my research. I
-    evaluate it with real-world bugs and compare it with the state-of-the-art
-    systems.
+    Bug diagnosis is difficult. The first step of bug diagnosis is to reproduce the bug. In areas such as application development, developers usually can only rely on the report logs uploaded by the user to try to reproduce bugs.
+    Unfortunately, it is still challenging to reproduce bugs that occurred in the production environment at the development environment. The primary obstacle of reproduction is non-deterministic events at runtime, such as system calls. Hence,  the same execution may lead to different results.
+
+    In this thesis, I present \TheName, a practical tool for recording system calls on Linux. \TheName utilizes Linux tracepoints to hook system calls.
+    \TheName collects relevant information for each system call related to their effects, which further helps developers reproduce and fix bugs. I implement a prototype of \TheName and evaluate it with real-world applications. The result demonstrates the \TheName capturing system calls entirely and efficiently. 
 \end{英文摘要}

@@ -38,3 +38,17 @@
 \usepackage{hologo}
 % code highlight
 % \usepackage{minted}
+\usepackage{abbrevs}
+\makeatletter
+\renewcommand\maybe@space@{%
+  \maybe@ictrue % <= this is new
+  \expandafter   \@tfor
+    \expandafter \reserved@a
+    \expandafter :%
+    \expandafter =%
+                 \nospacelist
+                 \do \t@st@ic
+  \ifmaybe@ic % <= this is new
+    \space
+  \fi
+}

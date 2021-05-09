@@ -1,29 +1,29 @@
 \section{Design}
-The overarching target of \$\{PROJECT\_NAME\} is to capture all syscalls issued by target application with low overhead. Specifically, it has the following characteristics:
+The overarching target of \TheName is to capture all syscalls issued by target application with low overhead. Specifically, it has the following characteristics:
 
 \begin{itemize}
     \item \textbf{online:} Our scenario is that our entire record system can  work simultaneously on the user side and eventually become a part of the log report. Therefore it must introduce only a extremely low overhead to guarantee that the user can run the desired program without perception.
     \item \textbf{complete:} We also need to ensure the integrity of record results, i.e. that every syscall is correctly captured with all the data needed for reproduction. Not only do we need to verify the correctness of our records on each syscall, but we also have to guarantee that the data in the buffer is fetched in a timely manner without any overflow.
-    \item \textbf{off-the-shore:} An practical system should never make assumptions about the hardware. \$\{PROJECT\_NAME\} is desgined completely based on the off-the-shelf hardware.
-    \item \textbf{without modification to application:} We do not make any changes to the source code or binary of the target application. The entire code of our system runs in kernel space, except for the transfer of logged results that need to be transferred to user space. This means that \$\{PROJECT\_NAME\} cares nothing about how the target application in user space is executed, but only about the event that this target application jumps to the kernel state.
-    \item \textbf{without modification to kernel:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \$\{PROJECT\_NAME\}, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \$\{PROJECT\_NAME\} is baesd on kernel moudle and works as a loadbale driver.
+    \item \textbf{off-the-shore:} An practical system should never make assumptions about the hardware. \TheName is desgined completely based on the off-the-shelf hardware.
+    \item \textbf{without modification to application:} We do not make any changes to the source code or binary of the target application. The entire code of our system runs in kernel space, except for the transfer of logged results that need to be transferred to user space. This means that \TheName cares nothing about how the target application in user space is executed, but only about the event that this target application jumps to the kernel state.
+    \item \textbf{without modification to kernel:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
 \end{itemize}
 
 
-\$\{PROJECT\_NAME\} realizes syscall capturing in three steps. (1) \$\{PROJECT\_NAME\} inspect and record each syscall. (2) Next, \$\{PROJECT\_NAME\} filter these records by some arrtibutions of its caller process. (3) Finally, \$\{PROJECT\_NAME\} transfer these filtered records.
+\TheName realizes syscall capturing in three steps. (1) \TheName inspect and record each syscall. (2) Next, \TheName filter these records by some arrtibutions of its caller process. (3) Finally, \TheName transfer these filtered records.
 
 
 
 
 % \begin{itemize}
-%     % \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \$\{PROJECT\_NAME\}, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \$\{PROJECT\_NAME\} is baesd on kernel moudle and works as a loadbale driver.
+%     % \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
 %     \item \textbf{Source vs. Binary: }  I choose to do the capturing at
-%     the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \$\{PROJECT\_NAME\} only concerns the runtime of processes, and would not perform any static analysis.
+%     the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \TheName only concerns the runtime of processes, and would not perform any static analysis.
 % \end{itemize}
 
 \subsection{Challenges}
 
-To achieve its desgin goal, \$\{PROJECT\_NAME\} faces following challenges.
+To achieve its desgin goal, \TheName faces following challenges.
 
 
 \subsubsection{Syscall parameters}
@@ -33,14 +33,14 @@ Considering some syscalls that allow to pass pointer and then modify its memory 
 
 \centerline{\texttt{ssize\_t getrandom(void *buf, size\_t buflen, unsigned int flags);}}
 
-It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \$\{PROJECT\_NAME\} needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
+It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \TheName needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
 
 In Arm64 \cite{syscall}, both first argument(\texttt{arg1}) and return value are saved in register \texttt{r0}, which means the parameter stored in \texttt{r0} will be replaced with return value before the syscall return to user. This results in the inability to directly record the chanegs only at the end of syscall handled in kernel. I solve this challenge by adding an extra record for several syscalls.
 
 
 % \subsubsection{Filter by Process}
 
-% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \$\{PROJECT\_NAME\} has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
+% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \TheName has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
 
 \subsubsection{Record Buffer}
 
@@ -53,17 +53,17 @@ System call records need to be stored in a buffer, while it is a very important 
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{figures/arch.pdf}
-    \caption{The three parts of \$\{PROJECT\_NAME\}}
+    \caption{The three parts of \TheName}
     \label{fig:arch}
 \end{figure}
 
 
 
-% In this section, I describe the desgin of \$\{PROJECT\_NAME\} by focusing on how it solves the above challenges
+% In this section, I describe the desgin of \TheName by focusing on how it solves the above challenges
 
 \subsection{Desgin Overview}
 
-In this section, I present the desgin of \$\{PROJECT\_NAME\} by focusing on how it addresses the above two key challenges. \$\{PROJECT\_NAME\} contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
+In this section, I present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
 
 As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} defines callback funtions in syscall, and will firslty inspect each syscall and then transfer relevant information to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer has two components: buffer management in kernel space and fetch daemon in user space. The daemon in user space will check the buffer periodically and dump these data form buffer to file.
 
@@ -77,7 +77,7 @@ As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} defines 
 
 \subsection{Core Hook}
 
-Figure \ref{fig:core-hook-desgin} shows the general workflow of \textit{core hook}. It consists of two stages of hooks, at the beginning and end of kernel handling of syscall. For the stage 1, \$\{PROJECT\_NAME\} will follow the start of syscall handlers and save the value of first parameter, if this syscall may change the memory addressed by first argument.
+Figure \ref{fig:core-hook-desgin} shows the general workflow of \textit{core hook}. It consists of two stages of hooks, at the beginning and end of kernel handling of syscall. For the stage 1, \TheName will follow the start of syscall handlers and save the value of first parameter, if this syscall may change the memory addressed by first argument.
 
 
 The second stage takes on more responsibility, including the recording of other pointer type parameters (except for the first one), and return values. Besides, this stage should also get the relevant information collected by stage 1.
@@ -92,6 +92,6 @@ The \texttt{filter} part is a relatively simple component that requires informat
 
 \subsection{Record Buffer}
 
-The \textit{record buffer} is intended to act as a transit between kernel space and user space. Therefore it has two parts located in kernel space and user space respectively. One of the simplest designs is to maintain a daemon in user space constantly querying and retrieving the data stored in the buffer, and then dumping the data to a file. However, we note that this introduces a huge amount of overhead, mainly due to frequent file io. Placing a larger buffer in user space would also solve this problem, but \$\{PROJECT\_NAME\} do not want to introduce a large impact on the entire system.
+The \textit{record buffer} is intended to act as a transit between kernel space and user space. Therefore it has two parts located in kernel space and user space respectively. One of the simplest designs is to maintain a daemon in user space constantly querying and retrieving the data stored in the buffer, and then dumping the data to a file. However, we note that this introduces a huge amount of overhead, mainly due to frequent file io. Placing a larger buffer in user space would also solve this problem, but \TheName do not want to introduce a large impact on the entire system.
 
 Therefore, \textit{record buffer} is designed to keep fetching the buffer occupancy, and then dumps the whole buffer only after finding that the buffer occupancy has reached a threshold.

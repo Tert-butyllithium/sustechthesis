@@ -1,20 +1,20 @@
 \section{Overview}
 
-The overarching target of \$\{PROJECT\_NAME\} is to capture Linux syscalls with low overhead. \$\{PROJECT\_NAME\} realizes syscall capturing in three steps. (1) \$\{PROJECT\_NAME\} inspect and record each syscall. (2) Next, \$\{PROJECT\_NAME\} filter these records by some arrtibutions of its caller process. (3) Finally, \$\{PROJECT\_NAME\} transfer these filtered records.
+The overarching target of \TheName is to capture Linux syscalls with low overhead. \TheName realizes syscall capturing in three steps. (1) \TheName inspect and record each syscall. (2) Next, \TheName filter these records by some arrtibutions of its caller process. (3) Finally, \TheName transfer these filtered records.
 
 \subsection{Design Choices}
 
-When designing \$\{PROJECT\_NAME\}, I make three design choices.
+When designing \TheName, I make three design choices.
 
 \begin{itemize}
-    \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \$\{PROJECT\_NAME\}, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \$\{PROJECT\_NAME\} is baesd on kernel moudle and works as a loadbale driver.
+    \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
     \item \textbf{Source vs. Binary: }  I choose to do the capturing at
-    the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \$\{PROJECT\_NAME\} only concerns the runtime of processes, and would not perform any static analysis.
+    the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \TheName only concerns the runtime of processes, and would not perform any static analysis.
 \end{itemize}
 
 \subsection{Challenges}
 
-To achieve its desgin goal, \$\{PROJECT\_NAME\} faces following challenges.
+To achieve its desgin goal, \TheName faces following challenges.
 
 
 \subsubsection{Syscall parameters}
@@ -24,14 +24,14 @@ Considering some syscalls that allow to pass pointer and then modify its memory 
 
 \centerline{\texttt{ssize\_t getrandom(void *buf, size\_t buflen, unsigned int flags);}}
 
-It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \$\{PROJECT\_NAME\} needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
+It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \TheName needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
 
 In Arm64 \cite{syscall}, both first argument(\texttt{arg1}) and return value are saved in register \texttt{r0}, which means the parameter stored in \texttt{r0} will be replaced with return value before the syscall return to user. This results in the inability to directly record the chanegs only at the end of syscall handled in kernel. I solve this challenge by adding an extra record for several syscalls.
 
 
 % \subsubsection{Filter by Process}
 
-% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \$\{PROJECT\_NAME\} has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
+% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \TheName has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
 
 \subsubsection{Record Transfer}
 
