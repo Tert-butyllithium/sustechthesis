@@ -1,5 +1,21 @@
 \section{Implementation}
+
+In this section, we describe our prototype of \TheName. We implement \TheName
+with more than \texttt{1.6k} lines C/C++ code
+on an Armv8 board based on Linux. In our prototype of \TheName, we analyze the semantics of the 60 commonly used
+\syscall{}s. For each \syscall{}, \TheName generates a description including  return address, process id and its effects. We also use a 16 MB buffer to temporarily store
+the \syscall{} records and then dump this buffer to files when it is full. 
+
+To optimize performance, we further apply a simple encoding rule to reduce the size of record file. The \TheName only incurs a low overhead in both time and space. Detailed measurement is presented
+in \S ??.
+
+\begin{itemize}
+    \item new sprintf
+    \item encoding
+\end{itemize}
+
 \subsection{Core Hook}
+
 
 The part of \textit{core hook} aims to hook system call, i.e., inject custom code at the begin and the end of a system call. By leveraging \textit{core hook}, It is easy to get the return value of the system call and the changes to the parameters. Linux has provided many different approaches to achieve it, such as \textit{ptrace}, \textit{auditd}, \textit{Kprobe} and \textit{tracepoint}. 
 

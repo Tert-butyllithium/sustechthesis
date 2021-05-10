@@ -27,16 +27,9 @@ The overarching target of \TheName is to capture all syscalls issued by target a
 
 In this section, I present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
 
-As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} defines callback funtions in syscall, and will firslty inspect each syscall and then transfer relevant information to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer has two components: buffer management in kernel space and fetch daemon in user space. The daemon in user space will check the buffer periodically and dump these data form buffer to file.
+As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} collect information for each system call, and then transfer to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer manage the buffer in kernel space and file write to user space.
 
 
-
-
-% \begin{itemize}
-%     % \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
-%     \item \textbf{Source vs. Binary: }  I choose to do the capturing at
-%     the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \TheName only concerns the runtime of processes, and would not perform any static analysis.
-% \end{itemize}
 \subsection{Case Study}
 
 \begin{figure}
@@ -87,27 +80,10 @@ Hence, it is necessary to record the content of syscall \texttt{read} to figure 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/syscall_capturer.pdf}
+    \includegraphics[width=0.95\textwidth]{figures/syscall_capturer.pdf}
     \caption{The Two hooks of \textit{core hook}}
     \label{fig:core-hook-desgin}
 \end{figure}
-
-
-\subsection{Core Hook}
-
-Figure \ref{fig:core-hook-desgin} shows the general workflow of \textit{core hook}. It consists of two stages of hooks, at the beginning and end of kernel handling of syscall. For the stage 1, \TheName will follow the start of syscall handlers and save the value of first parameter, if this syscall may change the memory addressed by first argument.
-
-
-The second stage takes on more responsibility, including the recording of other pointer type parameters (except for the first one), and return values. Besides, this stage should also get the relevant information collected by stage 1.
-
-There is still a problem that, due to the concurrency of the system, there may be multiple system calls being processed at the same time. Especially considering that the system calls processed in a relatively long period. So, there will be multiple system calls going to different stages of  \textit{core hook}.
-
-This problem is solved by the observation that syscall will block the thread in user space. Therefore, we can find a one-to-one mapping from thread number to a system call event at any moment. I maintain a table to save these correspondences in second stage, and also get its first parameters from stage 1.
-
-% To achieve its desgin goal, \TheName faces following challenges.
-
-
-\subsubsection{Loss of Syscall Parameters}
 
 \begin{table}
     % table caption should be in the top.
@@ -134,21 +110,90 @@ This problem is solved by the observation that syscall will block the thread in 
 \end{table}
 
 
-% Considering some syscalls that allow to pass pointer and then modify its memory addressed by this pointer, it is necessary to check and record the change. For example, the prototype of syscall \texttt{getrandom} is defined as follow:\cite{getrandom2}
+\subsection{Core Hook}
+
+\textit{Core hook} utilizes \textit{Linux Kernel Tracepoints} \cite{mathieu2021using}, which
+provides lightweight hook points in critical positions over the kernel
+(includes the enter and exit of \syscall{}), to achieve the capture.  Figure \ref{fig:core-hook-desgin} illustrates the procedure of \syscall{}s
+(defined at function \texttt{el0\_svc\_\\common} for Arm64) and the recording for \syscall{}s. 
 
 
-% \centerline{\texttt{ssize\_t getrandom(void *buf, size\_t buflen, unsigned int flags);}}
-
-% It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \TheName needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
-
-As Table
+When entering a \syscall{}, the kernel goes into \textit{syscall entrance
+hook} which stores values of involved registers. As Table
 \ref{table:arch_registers} shows, the register \texttt{x0} and \texttt{x1} are used as both
 parameters and return values of \syscall{}s on Arm64. Thus, these registers are
 overwritten by return values during \syscall{} procedure. Consequently, we may not
 obtain the \syscall{} parameters at the \textit{syscall exit hook} directly.
 However, these parameters are critical in some cases. For example, as Figure
 \ref{fig:data-race} demonstrates, the content of \texttt{big\_buf}, addressed by
-the first parameter of \texttt{read}, is necessary for bug analysis. 
+the first parameter of \texttt{read}, is necessary for failure analysis.
+Therefore, we need to record the corresponding parameter at the \textit{syscall
+entrance hook}, and further record the content addressed by \texttt{big\_buf} at 
+the \textit{syscall exit hook}.
+
+Before exiting a \syscall{}, the kernel falls into \textit{syscall exit
+hook}. This hook records different information for
+various types of \syscall{}s. Firstly, if the capturer notices that a
+\syscall{} only changes specific registers (e.g., \texttt{getpid} only changes
+return value), it could selectively save information to reduce the size of
+record file. Secondly, we need to record additional information for
+certain \syscall{}s;
+for example, the \syscall{} \texttt{read(int fd, void *buf, size\_t count)}
+tries to fill \texttt{count} bytes to the memory region addressed by
+\texttt{buf}. In this case, we have to notice and record the write to this
+memory region. 
+
+For a better understanding of the impact of \syscall{}s, we classify
+them into four types according to their effect on memory and registers.
+
+\begin{itemize}
+\item
+\noindent\textbf{R}\textit{eading} \textbf{S}\textit{tatus}: 
+The \textit{RS-Type} \syscall{}s
+aim to read information related to system status. The results of
+these \syscall{}s may be transferred by the return value (e.g., \texttt{getpid}), 
+a pointer (e.g., \texttt{getitimer}), or shared memory (e.g.,
+\texttt{getrandom}). For all \syscall{}s
+in this category, we can directly record the memory or register they changed.
+
+\item
+\noindent\textbf{W}\textit{riting} \textbf{S}\textit{tatus}: 
+The WS-Type \syscall{}s
+changes the status of the system. As the WS-Type \syscall{}s do not
+directly change the memory and registers of the program, we ignore
+them unless they fail and return an error code. 
+For example, the \syscall{} \texttt{epoll\_create} in \texttt{epoll} API
+is ignored, but the influence of \syscall{} \texttt{epoll\_wait} is
+recorded since we classify it as an \textit{RS-Type} \syscall{}.
+
+%we do not handle \syscall{}
+%\texttt{epoll\_create} in \texttt{epoll} API, while we record the influence
+%of \syscall{} \texttt{epoll\_wait} as we classify it as \textit{Get from OS}.
+
+\item
+\noindent\textbf{R}\textit{eading} \textbf{C}\textit{ontent}: 
+The \textit{RC-Type} \syscall{}s read content from an external input, and the
+handling of \textit{RC-Type} \syscall{}s is similar to that of \textit{RS-Type} 
+\syscall{}s. However, since the content is usually much larger than
+the status read in the \textit{RS-Type} \syscall{}s, we choose to
+truncate the content and record only the first 256 bytes due to
+performance requirements. Recording the entire content may become
+impractical in extreme cases (e.g., data center with tremendous
+uploads) as it results in a huge size of record file. 
+Besides, we find that the truncated content is sufficient for bug diagnosis in
+most cases. A further evaluation is discussed in
+\S ??.
+
+\item
+\noindent\textbf{W}\textit{riting} \textbf{C}\textit{ontent}:
+The \textit{WC-Type} \syscall{}s write content to an external source. We 
+consider that they would not affect the execution status of the target
+program. For example, the \syscall{} \texttt{write} is ignored, and
+the written content is recorded if the \textit{RC-Type} \syscall{}
+\texttt{read} is used to read from the source again.
+%The content of \syscall{}s like \texttt{write} or
+%\texttt{sendto} also no needs to record, unless it fails.
+\end{itemize}
 
 
 
@@ -169,7 +214,7 @@ the first parameter of \texttt{read}, is necessary for bug analysis.
 
 \subsection{Filter}
 
-The \texttt{filter} part is a relatively simple component that requires information about the caller of the syscall from the Linux kernel. Then it will perform filter by pre-passed conditions. Last, it passes this filtered information on to the next part.
+
 
 \subsection{Record Buffer}
 
