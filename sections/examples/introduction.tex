@@ -44,8 +44,8 @@ inference, which in the worst case is a search of the entire space, is a problem
 inevitably affects its usefulness in practice \cite{montesinos_capo_2009}.
 Recently there have been some practical systems that have adopted tools provided
 by Linux for tracing, thus achieving better efficiency. Nevertheless, it still
-introduces a considerable overhead (50\%) and is therefore used in scenarios
-where the developer exactly needs to debug \cite{203227}.
+introduces a considerable overhead (50\%) and is therefore only available
+when the developer exactly needs to record and replay \cite{203227}.
 
 This thesis focuses on the data record part of record-and-replay systems, precisely, the recording of non-deterministic events caused by system calls. I argue that a \textit{practical} record system should  (1) run online, meaning that the recording has little performance impact on the execution of the target program, (2) log all data without any omission, (3) work on commercial off-the-shelf hardware, (4) not require any modification to the target program, and also (5) not require any modification to the kernel.
 
@@ -73,10 +73,8 @@ program and does not rely on any hardware modification.
 
 In summary, I make the following contributions:
 \begin{itemize}
-    \item I present a system call recording tool named \TheName{} on Arm platforms. To the
-    best of our knowledge, it is the first hardware-assisted system call recording tool
-    for Arm architecture. 
-    \TheName{} works with
+    \item I present a system call recording tool named \TheName{} on Arm platforms, which 
+     works with
     unmodified binary on Arm platform without hardware modification.
     %, thus
     %suitable for in-production deployment.
@@ -95,7 +93,7 @@ In summary, I make the following contributions:
     % \TheName adaptively adds
     % hardware watchpoint/breakpoint to produce coredumps to recover data flow.   
     \item I implement a prototype of \TheName{} and evaluate it with
-    buggy real-world applications.
+    real-world applications.
     The evaluation result demonstrates that \TheName{} successfully records
     various types of applications with up to 3.88\% runtime
     performance overhead on average.

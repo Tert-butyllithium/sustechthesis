@@ -12,48 +12,10 @@ The overarching target of \TheName is to capture all syscalls issued by target a
 
 \TheName realizes syscall capturing in three steps. (1) \TheName inspect and record each syscall. (2) Next, \TheName filter these records by some arrtibutions of its caller process. (3) Finally, \TheName transfer these filtered records.
 
-
-
-
-% \begin{itemize}
-%     % \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
-%     \item \textbf{Source vs. Binary: }  I choose to do the capturing at
-%     the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \TheName only concerns the runtime of processes, and would not perform any static analysis.
-% \end{itemize}
-
-\subsection{Challenges}
-
-To achieve its desgin goal, \TheName faces following challenges.
-
-
-\subsubsection{Syscall parameters}
-
-Considering some syscalls that allow to pass pointer and then modify its memory addressed by this pointer, it is necessary to check and record the change. For example, the prototype of syscall \texttt{getrandom} is defined as follow:\cite{getrandom2}
-
-
-\centerline{\texttt{ssize\_t getrandom(void *buf, size\_t buflen, unsigned int flags);}}
-
-It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \TheName needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
-
-In Arm64 \cite{syscall}, both first argument(\texttt{arg1}) and return value are saved in register \texttt{r0}, which means the parameter stored in \texttt{r0} will be replaced with return value before the syscall return to user. This results in the inability to directly record the chanegs only at the end of syscall handled in kernel. I solve this challenge by adding an extra record for several syscalls.
-
-
-% \subsubsection{Filter by Process}
-
-% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \TheName has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
-
-\subsubsection{Record Buffer}
-
-System call records need to be stored in a buffer, while it is a very important issue when it comes to somehow get them from the buffer in real-time, with low consumption, and completely. However, the most strightforward solution, i.e., trying to keep fetching data from the buffer and save to file, causes a huge amount of overhead. I solve this challenge by enlarging buffer and reducing the frequency of acquisition.
-
-
-
-
-
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/arch.pdf}
-    \caption{The three parts of \TheName}
+    \includegraphics[width=0.8\textwidth]{figures/arch.pdf}
+    \caption{The Overview of \TheName}
     \label{fig:arch}
 \end{figure}
 
@@ -67,10 +29,66 @@ In this section, I present the desgin of \TheName by focusing on how it addresse
 
 As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} defines callback funtions in syscall, and will firslty inspect each syscall and then transfer relevant information to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer has two components: buffer management in kernel space and fetch daemon in user space. The daemon in user space will check the buffer periodically and dump these data form buffer to file.
 
+
+
+
+% \begin{itemize}
+%     % \item \textbf{Modify Kernel Source vs. Load Kernel Module:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
+%     \item \textbf{Source vs. Binary: }  I choose to do the capturing at
+%     the binary level instead of at the source code level. because it is quite common that source code and system calls have not corresponded (e.g., library function \texttt{malloc} do not necessarily call the \texttt{mmap}), with most programs use libraries instead of calling system calls directly. In fact, \TheName only concerns the runtime of processes, and would not perform any static analysis.
+% \end{itemize}
+\subsection{Case Study}
+
+\begin{figure}
+    \begin{minipage}[t]{0.46\textwidth}
+      \begin{lstlisting}
+  // Thread 1::
+  char big_buf[64];
+  while(1)
+    read(fd, big_buf, 64);
+      \end{lstlisting}    
+    \end{minipage}
+    \begin{minipage}[t]{0.46\textwidth}
+      \lstset{firstnumber=last}
+      \begin{lstlisting}
+  // Thread 2::
+  int total = 0;
+  int len = 0;
+  char buf[15];
+  for (short i=0; i < 2; ++i)
+    len = strlen(big_buf);
+    if (len < 15)
+      strcpy(buf, big_buf);
+      total += len;
+  assert(total<30)
+    \end{lstlisting}    
+    \end{minipage}
+  
+  
+    \caption{Buffer Overflow Caused by Data Race}
+    \label{fig:data-race}
+\end{figure}
+
+Figure~\ref{fig:data-race} demonstrates a typical concurrency
+bug related to the non-deterministic event
+(\syscall{} \texttt{read}). Assume that the loop (Line 10 to Line 13) in Thread 2
+is executed twice. In the first iteration, the \texttt{read} of 
+\texttt{big\_buf} (Line 4) in Thread 1 is performed after the length 
+check (Line 10 and Line 11) in Thread 2. The following \texttt{strcpy} (Line 12) in 
+Thread 2 may lead to a buffer overflow and overwrite variables \texttt{len} and 
+\texttt{total}. In the second iteration, no data race is involved, but the 
+unpredictable \texttt{total} overwritten in the first iteration might be larger
+than 30 after the summation (Line 13) in Thread 2. This finally fails the
+\texttt{assert} (Line 14) in Thread 2 and crashes the program.
+In this example, the memory and registers indicating the root cause of
+the bug are overridden by subsequent control flow. 
+Hence, it is necessary to record the content of syscall \texttt{read} to figure out the bug.
+
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/core-hook-desgin.pdf}
-    \caption{The two tages of \textit{core hook}}
+    \includegraphics[width=0.9\textwidth]{figures/syscall_capturer.pdf}
+    \caption{The Two hooks of \textit{core hook}}
     \label{fig:core-hook-desgin}
 \end{figure}
 
@@ -85,6 +103,69 @@ The second stage takes on more responsibility, including the recording of other 
 There is still a problem that, due to the concurrency of the system, there may be multiple system calls being processed at the same time. Especially considering that the system calls processed in a relatively long period. So, there will be multiple system calls going to different stages of  \textit{core hook}.
 
 This problem is solved by the observation that syscall will block the thread in user space. Therefore, we can find a one-to-one mapping from thread number to a system call event at any moment. I maintain a table to save these correspondences in second stage, and also get its first parameters from stage 1.
+
+% To achieve its desgin goal, \TheName faces following challenges.
+
+
+\subsubsection{Loss of Syscall Parameters}
+
+\begin{table}
+    % table caption should be in the top.
+    \caption{
+        Part of Registers Used in Syscalls \cite{syscall}.}
+    \centering
+    \begin{tabular}{lllllll}
+        \toprule
+        arch                      &  syscall number &
+        return value &
+        return value 2 & arg0                      & arg1 &
+        arg2                                                               \\
+        \midrule
+        arm64                     & w8                        & x0   & x1
+                                  & x0                        & x1   & x2  \\
+        x86-64                    & rax                       & rax  &
+        rdx                       & rdi                       & rsi  & rdx
+        \\
+        riscv                     & a7                        & a0   & a1
+                                  & a0                        & a1   & a2  \\
+        \bottomrule
+    \end{tabular}
+    \label{table:arch_registers}
+\end{table}
+
+
+% Considering some syscalls that allow to pass pointer and then modify its memory addressed by this pointer, it is necessary to check and record the change. For example, the prototype of syscall \texttt{getrandom} is defined as follow:\cite{getrandom2}
+
+
+% \centerline{\texttt{ssize\_t getrandom(void *buf, size\_t buflen, unsigned int flags);}}
+
+% It is clear that the \texttt{getrandom} will fill the buffer pointed to by its first parameter, \texttt{buf}. Therefore, \TheName needs to record the memory area changed by syscall. However, there is still a challenge that sometimes we cannot get the address at the end of syscall involked. This is due to the way the parameters are passed, determined by the architecture of CPU.
+
+As Table
+\ref{table:arch_registers} shows, the register \texttt{x0} and \texttt{x1} are used as both
+parameters and return values of \syscall{}s on Arm64. Thus, these registers are
+overwritten by return values during \syscall{} procedure. Consequently, we may not
+obtain the \syscall{} parameters at the \textit{syscall exit hook} directly.
+However, these parameters are critical in some cases. For example, as Figure
+\ref{fig:data-race} demonstrates, the content of \texttt{big\_buf}, addressed by
+the first parameter of \texttt{read}, is necessary for bug analysis. 
+
+
+
+% Table \ref{table:arch_registers}, both first argument(\texttt{arg1}) and return value are saved in register \texttt{r0}, which means the parameter stored in \texttt{r0} will be replaced with return value before the syscall return to user. This results in the inability to directly record the chanegs only at the end of syscall handled in kernel. I solve this problem by adding an extra record for several syscalls.
+
+
+% \subsubsection{Filter by Process}
+
+% The capture needs filter by process due to the concurrency of the OS, i.e., interleaving with multiple processes. Thus, to distinguish the different syscall callers, \TheName has to add the caller's information for each syscall record. Accordingly, this challenge become \textit{how to get the process that issued the system call}. I address this challenge by inspecting a sepcial data structure in Linux kernel.
+
+% \subsubsection{Record Buffer}
+
+% System call records need to be stored in a buffer, while it is a very important issue when it comes to somehow get them from the buffer in real-time, completely, and with low overhead. However, the most strightforward solution, i.e., trying to keep fetching data from the buffer and save to file, causes a huge amount of overhead. Therefore, I choose to directly write to file 
+
+
+
+
 
 \subsection{Filter}
 
