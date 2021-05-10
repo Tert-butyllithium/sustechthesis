@@ -1,23 +1,18 @@
 \section{Intoduction}
 The program often fails. To sufficiently understand and prevent failures,
 developers requires firstly reproduce these bugs, which ensures the same output
-and bugs no matter how many times it is re-executed. However, directly
+and bugs. However, directly
 re-exection is not suitable for non-deterministic failures, as they may not
-appear in a re-rection procedure. Non-deterministic failures are the consequence
-of non-deterministic instructions. 
+appear in a re-execution procedure. Non-deterministic failures are the
+consequence of non-deterministic instructions. 
 
 Instructions for running a program can be divided into two categories. One is
-deterministic, i.e., the behavior of the program is determined in each
+deterministic, which means the behavior of deterministic instruction is determined in each
 execution. The other type is non-deterministic, meaning that execution in
 different situations will have different results. Although most of the CPU
-execution is deterministic, non-deterministic instructions are also pervasive.
-This is mainly because of the fact that the execution of a program is not in an
-isolated system. In fact, the operating system plays a critical role in program
-initialization, system calls, and scheduling throughout the program lifecycle.
+execution is deterministic (e.g., \texttt{ADD}), non-deterministic instructions (e.g., get user input) are also pervasive.
 Typical sources of nondeterminism include system calls, interrupts, signals, and
-data races for concurrency programs.
-
-All these non-deterministic events can be futher classified into two types:
+data races for concurrency programs \cite{ronsse_recplay_1999}. All these non-deterministic events can be futher classified into two types:
 inconstancy of the data flow - for example, certain system calls such as
 \texttt{getrandom} and \texttt{getpid}, and inconstancy of the control flow
 - for example, concurrency bug due to memory access in inconsistent order \cite{getrandom2}.
@@ -41,7 +36,7 @@ use dynamic binary instrumentation to get the results after running each
 instruction, but this is very inefficient \cite{bhansali_framework_2006}. There
 are some other systems that choose not to record at runtime in order to address
 the expensive cost of recording; instead, they infer these non-deterministic
-events based on the control flow and other information collected.
+events based on the control flow and other information collected
 \cite{altekar_odr_2009,cui_rept_2018}. However, inference often does not
 reproduce program execution as faithfully as records, and the time required for
 inference, which in the worst case is a search of the entire space, is a problem
@@ -52,11 +47,57 @@ by Linux for tracing, thus achieving better efficiency. Nevertheless, it still
 introduces a considerable overhead (50\%) and is therefore used in scenarios
 where the developer exactly needs to debug \cite{203227}.
 
-This thesis focuses on the data record part of record-and-replay systems, precisely, the logging of non-deterministic events caused by system calls. I argue that a \textit{practical} record system should  (1) run online, meaning that the recording has little performance impact on the execution of the target program, (2) log all data without any omission, (3) work on commercial off-the-shelf  hardware, (4) not require any modification to the target program, and also (5) not require any modification to the kernel.
+This thesis focuses on the data record part of record-and-replay systems, precisely, the recording of non-deterministic events caused by system calls. I argue that a \textit{practical} record system should  (1) run online, meaning that the recording has little performance impact on the execution of the target program, (2) log all data without any omission, (3) work on commercial off-the-shelf hardware, (4) not require any modification to the target program, and also (5) not require any modification to the kernel.
 
-In this thesis, I propose \TheName, a practical solution for syscall capturing. It works effectively on Linux, on commercial off-the-shelf hardware, and it can run almost imperceptibly along with the original program. 
+In this thesis, I propose \TheName, a practical solution for syscall capturing. 
+It works with unmodified Linux programs on commercial off-the-shelf (OTS) hardware. My original design was on the ARM platform, but the system can be applied to other platforms as well (e.g. x86, riscv). I demonstrat its usefulness on both x86 and ARM platforms. \TheName consists of three component: \CoreHook, \Filter and \RecordBuffer.
+
+The \CoreHook is a probe of system call. \CoreHook inspects each system call,   and collects the effects on memory and registers by considering the semantics of system calls. The \Filter stores relevant information of the process what issues the system call, and compares this information with the characteristics specified by the developer. The \RecordBuffer temporarily store the recording of system calls and dumps it to file.
+
+We implement a prototype of \TheName{} and evaluate it with the 
+aforementioned requirements in mind. The evaluation results show that
+\TheName{} completely records system calls. 
+% We also leverage \TheName{} to diagnose 16 failed programs (7 code segments 
+% reconstructed from application and 9 real-world applications including Python, Memcached, 
+% and SQLite). The diagnosis indicates that \TheName{} effectively identifies the root cause 
+% of the failures caused by concurrency and sequential bugs
+We also leverage \TheName to record 16 failed programs (7 code segments 
+reconstructed from application and 9 real-world applications including Python, Memcached, and SQLite). The recording indicates that \TheName effectively records system calls
+ with a performance overhead of
+up to 3.88\% on average. Meanwhile, \TheName{} directly works on the unmodified binary of the target 
+program and does not rely on any hardware modification.
 
 % The main challenge confornt to \TheName is how to 
 
 % I implement \TheName in three components. The hook component is a couple of callback functions that hooks the entrance and exit of each system call. The filter component are  functions 
 
+In summary, I make the following contributions:
+\begin{itemize}
+    \item I present a system call recording tool named \TheName{} on Arm platforms. To the
+    best of our knowledge, it is the first hardware-assisted system call recording tool
+    for Arm architecture. 
+    \TheName{} works with
+    unmodified binary on Arm platform without hardware modification.
+    %, thus
+    %suitable for in-production deployment.
+    \item I achieve high performance that allows the
+    always-on trace for the production environment, which provides \TheName{} the ability
+    to reconstruct the entire records.
+    %so \TheName accurately
+    %reconstructs control flow based on the trace and the program binary.
+    % \item \TheName{} performs \Adaptivedata{} at \Analysisstage{}, and
+    % helps developers to reproduce and locate the \bof{}s that occurred in 
+    % the production environment.
+    %I propose \Adaptivedata to recover complete data flow in
+    %\Analysisstage.
+    %To achieve this goal, I utilize the records of \Recordingstage
+    %to identical re-execute and reproduce bugs. 
+    % \TheName adaptively adds
+    % hardware watchpoint/breakpoint to produce coredumps to recover data flow.   
+    \item I implement a prototype of \TheName{} and evaluate it with
+    buggy real-world applications.
+    The evaluation result demonstrates that \TheName{} successfully records
+    various types of applications with up to 3.88\% runtime
+    performance overhead on average.
+  \end{itemize}
+  
