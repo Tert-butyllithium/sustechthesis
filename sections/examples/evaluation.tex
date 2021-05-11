@@ -220,7 +220,7 @@ scenario. We finally evaluate the runtime performance overhead of \TheName by ru
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.47\textwidth]{figures/unixbenchoverheadbar.pdf}
+    \includegraphics[width=0.9\textwidth]{figures/unixbenchoverheadbar.pdf}
     \caption{Performance overhead of running UnixBench with ETM tracing and non-deterministic event TheName.}
     \label{fig:Performance overhead of running UnixBench}
 \end{figure}
@@ -262,7 +262,7 @@ connections to a Memcached server running on localhost.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.45\textwidth]{figures/normaloverheadbar.pdf}
+    \includegraphics[width=0.9\textwidth]{figures/normaloverheadbar.pdf}
     \caption{Performance overhead of 4 real-world prgrams execution enables ETM tracing and non-deterministic event TheName with library hook.}
     \label{fig:Performance overhead of Normal Execution}
 \end{figure}
@@ -307,9 +307,10 @@ Therefore, we choose to truncate the records of \textit{RC-Type} \syscall{}s to
 the beginning 256 bytes.
 
 \begin{table}[]
-    \small
+    % \small
     \caption{Space Consumption for Saving All Content or Truncation}
     \label{space_consumption}
+    \centering
     \begin{tabular}{@{}llll@{}}
         \toprule
         \textbf{Type}        & \textbf{Real Time}       & \textbf{File Size} & \textbf{\begin{tabular}[c]{@{}l@{}}Estimated \\ 24-hour File Size\end{tabular}} \\ \midrule

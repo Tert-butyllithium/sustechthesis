@@ -25,7 +25,7 @@ The overarching target of \TheName is to capture all syscalls issued by target a
 
 \subsection{Desgin Overview}
 
-In this section, I present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
+In this section, we present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
 
 As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} collect information for each system call, and then transfer to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer manage the buffer in kernel space and file write to user space.
 
@@ -210,14 +210,15 @@ the written content is recorded if the \textit{RC-Type} \syscall{}
 
 
 
-
-
 \subsection{Filter}
+
+The \Filter is responsible for checking the issuer of the system call, then comparing it with the conditions passed in at load time, and finally passing the records that satisfy the conditions to the buffer.
+\Filter leverages \texttt{current} to collect relevant information about the issuer. The \texttt{current} points to the process descriptor \texttt{task\_struct} which contains all the information about the executing process. During a procedure of system call, \texttt{current} pointer indicates the issuer \cite{corbet_linux_2005}. 
 
 
 
 \subsection{Record Buffer}
 
-The \textit{record buffer} is intended to act as a transit between kernel space and user space. Therefore it has two parts located in kernel space and user space respectively. One of the simplest designs is to maintain a daemon in user space constantly querying and retrieving the data stored in the buffer, and then dumping the data to a file. However, we note that this introduces a huge amount of overhead, mainly due to frequent file io. Placing a larger buffer in user space would also solve this problem, but \TheName do not want to introduce a large impact on the entire system.
+The \textit{record buffer} is intended to act as a transit between kernel space and user space. One of the simplest designs is to maintain a daemon in user space constantly querying and retrieving the data stored in the buffer, and then dumping the data to a file. However, we note that this introduces a huge amount of overhead, mainly due to frequent file I/O. Placing a larger buffer in user space would also solve this problem, but \TheName does not want to introduce a large impact on the system.
 
-Therefore, \textit{record buffer} is designed to keep fetching the buffer occupancy, and then dumps the whole buffer only after finding that the buffer occupancy has reached a threshold.
+Therefore, \TheName directly writes to file from the kernel, i.e., when the buffer is full, \TheName dumps the buffer to files. In addition, it is noticeable that the kernel can not write files in all cases. For example, considering system calls that controls files such as \texttt{open}, \texttt{read} or \texttt{close}, \TheName should avoid writing files, or it will induce scheduling while atomic. Hence, \TheName maintains an additional secondary buffer. When the original buffer uses up, its content transfers to the secondary buffer, and then waits for a syscall irrelevant to file management to dumps to file.
