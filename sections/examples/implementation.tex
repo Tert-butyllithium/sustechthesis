@@ -1,25 +1,22 @@
 \section{Implementation}
 
 In this section, we describe our prototype of \TheName. We implement \TheName
-with more than \texttt{1.6k} lines C/C++ code
+with more than \texttt{1.6k} lines C code
 on an Armv8 board based on Linux. In our prototype of \TheName, we analyze the semantics of the 60 commonly used
-\syscall{}s. For each \syscall{}, \TheName generates a description including  return address, process id and its effects. We also use a 16 MB buffer to temporarily store
+\syscall{}s. For each \syscall{}, \TheName generates a description including  return address, process id and its effects. We also use two 16 MB buffers to temporarily store
 the \syscall{} records and then dump this buffer to files when it is full. 
 
-To optimize performance, we further apply a simple encoding rule to reduce the size of record file. The \TheName only incurs a low overhead in both time and space. Detailed measurement is presented
+To optimize performance, we further apply a simple encoding rule to reduce the size of record file. Besides, we simplify and rewrite \texttt{sprintf} with our version to achieve a better performance.
+
+The \TheName only incurs a low overhead in both time and space. Detailed measurement is presented
 in \S ??.
 
-\begin{itemize}
-    \item new sprintf
-    \item encoding
-\end{itemize}
-
-\subsection{Core Hook}
+% % \subsection{Core Hook}
 
 
-The part of \textit{core hook} aims to hook system call, i.e., inject custom code at the begin and the end of a system call. By leveraging \textit{core hook}, It is easy to get the return value of the system call and the changes to the parameters. Linux has provided many different approaches to achieve it, such as \textit{ptrace}, \textit{auditd}, \textit{Kprobe} and \textit{tracepoint}. 
+% The part of \textit{core hook} aims to hook system call, i.e., inject custom code at the begin and the end of a system call. By leveraging \textit{core hook}, It is easy to get the return value of the system call and the changes to the parameters. Linux has provided many different approaches to achieve it, such as \textit{ptrace}, \textit{auditd}, \textit{Kprobe} and \textit{tracepoint}. 
 
-I choose \textit{tracepoint} to implement our core hook, since it 
+% I choose \textit{tracepoint} to implement our core hook, since it 
 
 % Ptrace is a system call that can be used for many things. By using ptrace,  a process can easily inspect and manipulate the internal state of another program, i.e., the target process. For example, debuggers like gdb can be used to see what processes are running \cite{ptrace2} .
 
@@ -37,12 +34,12 @@ I choose \textit{tracepoint} to implement our core hook, since it
 % But Kprobe, with too limited in features. Kprobe-based event tracers used by perf, which did not allow the ability to dereference arbitrarily complex structures and severely limited the ability to introduce custom logic in the instrumentation phase
 
 
-\subsection{Filter}
+% \subsection{Filter}
 
-We get the process descriptor of syscall issuer (the process using the syscall) via \texttt{current}, and compare it with conditions passed in.
+% We get the process descriptor of syscall issuer (the process using the syscall) via \texttt{current}, and compare it with conditions passed in.
 
-\subsection{Record buffer}
+% \subsection{Record buffer}
 
-The buffer is a circular queue. And there is also a number indicating the usage of the buffer. 
+% The buffer is a circular queue. And there is also a number indicating the usage of the buffer. 
 
-The most sophisticated component is to share the buffer between kernel space to user space. 
+% The most sophisticated component is to share the buffer between kernel space to user space. 
