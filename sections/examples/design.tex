@@ -2,7 +2,7 @@
 The overarching target of \TheName is to capture all syscalls issued by target application with low overhead. Specifically, it has the following characteristics:
 
 \begin{itemize}
-    \item \textbf{online:} Our scenario is that our entire record system can  work simultaneously on the user side and eventually become a part of the log report. Therefore it must introduce only a extremely low overhead to guarantee that the user can run the desired program without perception.
+    \item \textbf{online:} Our scenario is that our entire record system can  run simultaneously on the user side and eventually become a part of the log report. Therefore it must introduce only a extremely low overhead to guarantee that the user can run the desired program without perception.
     \item \textbf{complete:} We also need to ensure the integrity of record results, i.e. that every syscall is correctly captured with all the data needed for reproduction. Not only do we need to verify the correctness of our records on each syscall, but we also have to guarantee that the data in the buffer is fetched in a timely manner without any overflow.
     \item \textbf{off-the-shore:} An practical system should never make assumptions about the hardware. \TheName is desgined completely based on the off-the-shelf hardware.
     \item \textbf{without modification to application:} We do not make any changes to the source code or binary of the target application. The entire code of our system runs in kernel space, except for the transfer of logged results that need to be transferred to user space. This means that \TheName cares nothing about how the target application in user space is executed, but only about the event that this target application jumps to the kernel state.
@@ -25,7 +25,7 @@ The overarching target of \TheName is to capture all syscalls issued by target a
 
 \subsection{Desgin Overview}
 
-In this section, we present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
+In this section, I present the desgin of \TheName by focusing on how it addresses the above two key challenges. \TheName contians three parts: \textit{core hook}, \textit{filter}, and \textit{record buffer}. 
 
 As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} collect information for each system call, and then transfer to \textit{filter} part. Subsequently, at the \textit{filter} part, it will find process information from the kernel, and filter syscall records with specific features (e.g., process id or name) and finally pass to \textit{record buffer}. The record buffer manage the buffer in kernel space and file write to user space.
 
@@ -63,8 +63,8 @@ As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} collect 
 \end{figure}
 
 Figure~\ref{fig:data-race} demonstrates a typical concurrency
-bug related to the non-deterministic event
-(\syscall{} \texttt{read}). Assume that the loop (Line 10 to Line 13) in Thread 2
+bug related to the 
+\syscall{} \texttt{read}. Assume that the loop (Line 10 to Line 13) in Thread 2
 is executed twice. In the first iteration, the \texttt{read} of 
 \texttt{big\_buf} (Line 4) in Thread 1 is performed after the length 
 check (Line 10 and Line 11) in Thread 2. The following \texttt{strcpy} (Line 12) in 
@@ -182,7 +182,7 @@ impractical in extreme cases (e.g., data center with tremendous
 uploads) as it results in a huge size of record file. 
 Besides, we find that the truncated content is sufficient for bug diagnosis in
 most cases. A further evaluation is discussed in
-\S ??.
+\S \ref{space-consumption}.
 
 \item
 \noindent\textbf{W}\textit{riting} \textbf{C}\textit{ontent}:
@@ -212,13 +212,24 @@ the written content is recorded if the \textit{RC-Type} \syscall{}
 
 \subsection{Filter}
 
-The \Filter is responsible for checking the issuer of the system call, then comparing it with the conditions passed in at load time, and finally passing the records that satisfy the conditions to the buffer.
-\Filter leverages \texttt{current} to collect relevant information about the issuer. The \texttt{current} points to the process descriptor \texttt{task\_struct} which contains all the information about the executing process. During a procedure of system call, \texttt{current} pointer indicates the issuer \cite{corbet_linux_2005}. 
+The \Filter is responsible for reducing the record size by applying filter conditions, and then only  transfer relevant system calls to \RecordBuffer.
+The \Filter can filter the process who issued the syscall by its attributions (e.g., process id, process name, and parent process id), as it leverages \texttt{current} to collect relevant information about the issuer. The \texttt{current} points to the process descriptor \texttt{task\_struct} which contains all the information about the executing process. During a procedure of system call, \texttt{current} pointer indicates the issuer of the syscall \cite{corbet_linux_2005}. 
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/dual_buf.pdf}
+    \caption{The procedure for dumping file}
+    \label{fig:dual_buf}
+\end{figure}
 
 
 
 \subsection{Record Buffer}
 
-The \textit{record buffer} is intended to act as a transit between kernel space and user space. One of the simplest designs is to maintain a daemon in user space constantly querying and retrieving the data stored in the buffer, and then dumping the data to a file. However, we note that this introduces a huge amount of overhead, mainly due to frequent file I/O. Placing a larger buffer in user space would also solve this problem, but \TheName does not want to introduce a large impact on the system.
+The \textit{record buffer} intends to transit between kernel space and user space. As Figure \ref{fig:dual_buf} demonstrates, considering that dumping to a file is relatively slow, the left design of Figure \ref{fig:dual_buf} causes \texttt{dump\_to\_file} to block system calls throughout the entire OS. In contrast, the design on the right only locks the \texttt{memcpy}; after the memory copy, other simultaneous system calls can directly write to \texttt{buffer}. 
 
-Therefore, \TheName directly writes to file from the kernel, i.e., when the buffer is full, \TheName dumps the buffer to files. In addition, it is noticeable that the kernel can not write files in all cases. For example, considering system calls that controls files such as \texttt{open}, \texttt{read} or \texttt{close}, \TheName should avoid writing files, or it will induce scheduling while atomic. Hence, \TheName maintains an additional secondary buffer. When the original buffer uses up, its content transfers to the secondary buffer, and then waits for a syscall irrelevant to file management to dumps to file.
+There is a risk that the buffer fills up again before \texttt{dump\_to\_file(sec\_buf)}, which makes part of the records lost. However, even in some extreme cases, this risk does not arise. The evaluation results are provided in \S\ref{subsec:eva-flowaccuracy}.
+
+
+% Therefore, \TheName directly writes to file from the kernel, i.e., when the buffer is full, \TheName dumps the buffer to files. In addition, it is noticeable that the kernel can not write files in all cases. For example, considering system calls that controls files such as \texttt{open}, \texttt{read} or \texttt{close}, \TheName should avoid writing files, or it will induce scheduling while atomic. Hence, \TheName maintains an additional secondary buffer. When the original buffer uses up, its content transfers to the secondary buffer, and then waits for a syscall irrelevant to file management to dumps to file.

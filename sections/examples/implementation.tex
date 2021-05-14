@@ -2,14 +2,14 @@
 
 In this section, we describe our prototype of \TheName. We implement \TheName
 with more than \texttt{1.6k} lines C code
-on an Armv8 board based on Linux. In our prototype of \TheName, we analyze the semantics of the 60 commonly used
+on an Armv8 juno board based on Linux. In our prototype of \TheName, we analyze the semantics of the 60 commonly used
 \syscall{}s. For each \syscall{}, \TheName generates a description including  return address, process id and its effects. We also use two 16 MB buffers to temporarily store
 the \syscall{} records and then dump this buffer to files when it is full. 
 
-To optimize performance, we further apply a simple encoding rule to reduce the size of record file. Besides, we simplify and rewrite \texttt{sprintf} with our version to achieve a better performance.
+To optimize performance, we further apply a simple encoding rule (i.e., encode the numbers to bytes) to reduce the size of record file. Besides, we simplify and rewrite \texttt{sprintf} with our version to achieve a better performance.
 
 The \TheName only incurs a low overhead in both time and space. Detailed measurement is presented
-in \S ??.
+in \S \ref{subsec:eva-Efficiency}.
 
 % % \subsection{Core Hook}
 

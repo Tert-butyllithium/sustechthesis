@@ -1,15 +1,47 @@
 \section{Related Work}
-There is a large amount of related work dedicated to cpaturing syscalls. In this section, I discuss some representative examples and describe
+
+There is a large amount of related work to cpaturing syscalls. In this section, I discuss some representative examples and describe
 how \TheName differs.
 
-\begin{itemize}
-    \item \textbf{Pinplay} \dots
-    \item \textbf{REPT} \dots
-    \item \textbf{rr} \dots
-    \item \textbf{DTrace} \dots
-    \item \textbf{sysdig} \dots
-\end{itemize}
+\textbf{Record and replay systems} are a type of systems that record sufficient information to reconstruct the program execution and then replay this execution. Record and replay systems are undoubtedly necessary to handle system calls or not replay faithfully.
+Pinplay \cite{patil_pinplay_2010} is a record and replay system based on Pin  \cite{reddi_pin_2004}, a binary instrumentation system. While it does record system calls, the instrument-based approach introduces significant overhead (up to 140x). REPT \cite{cui_rept_2018} chooses to not record non-deterministic events such as system calls. In contrast, REPT adopts inference algorithms to reconstruct the effects of system calls. However, inference-based approaches can not achieve a 100\% reconstruction. For example, REPT can not deal with bugs like Figure \ref{fig:data-race}.
+
+RR \cite{203227} is one of the-state-of-the-practice record and replay systems. RR perform the recording to non-deterministic events via \texttt{ptrace} \cite{ptrace2},
+a \syscall{}
+that allows a process to inspect and control the execution of another
+one.
+By using \texttt{ptrace}, a supervisory process can easily observe and intercept \syscall{}s issued by the target program.
+Nevertheless,
+% \zhenyu{what is "the supervisor"?}
+\texttt{ptrace} brings a considerable overhead (up to 7.85×) as the supervisor also runs in
+user space, 
+% \zhenyu{why you write this? You introduced a tool, and then suddenly
+% talk about some other things.}
+which means that the supervisor needs to capture data with several
+context switches (between target process with supervisor).
+
+% \textbf{Linux troubleshooting tools} are a type of tools to inspect and record system status. Some Linux troubleshooting tools 
+Some \textbf{Linux troubleshooting tools} monitor the target application and captures data
+from non-deterministic events, such as Sysdig \cite{github_sysdig_2021}, DTrace
+\cite{gregg_dtrace_2019,gregg_dtrace_2011}, and Strace \cite{github_strace_2021}.
+Nevertheless, Strace \cite{github_strace_2021} also utilize \texttt{ptrace} to capture syscalls, which is similar to RR and inevitably introduces a considerable overhead. DTrace is powerful and efficient, but it is too sophisticated to use and require technical knowledge to optimize \cite{gregg_dtrace_2011}. Sysdig also leverages \textit{Linux tracepoints} as \TheName to achieve a relevant reasonable overhead (about 15\%); however, Sysdig sacrifices the completeness of its records, i.e., it does not guarantee that all system calls will always be recorded \cite{degioanni_sysdig_2014}.
+% Nevertheless, these tools are desgined to
+% monitor and troubleshoot applications, and performance is not their primary
+% consideration.
+% Nevertheless, some of these tools are designed to monitor and troubleshoot applications
+% instead of precisely recording their effects \cite{github_sysdig_2021}; some do not concern about the runtime performance ; 
+% others are hard to use and require technical knowledge to optimize \cite{gregg_dtrace_2011}.
+
+
+% \begin{itemize}
+%     \item \textbf{Pinplay} \dots
+%     \item \textbf{REPT} \dots
+%     \item \textbf{rr} \dots
+%     \item \textbf{DTrace} \dots
+%     \item \textbf{sysdig} \dots
+% \end{itemize}
 
 
 \section{Conclusion}
 
+I propose a syscall record tool \TheName on ARM to satisfy practical requirements. It takes advantage of the mechanisms in Linux to completely and efficiently capture and record system calls. \TheName achieves its design goals and is suitable as the basis for record and replay systems. 
