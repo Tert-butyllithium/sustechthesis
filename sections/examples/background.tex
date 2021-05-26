@@ -1,17 +1,3 @@
-% \section{Background: Linux Trace}
+% \section{Background: How a Linux System Call Works }
 
-% From trace maker to tracepoint
-% \subsection{Linux Tracepoint}
-
-
-
-%  Tracepoint is a lightweight hook for events provided by Linux. With tracepoint, we can provide a callback function (called a probe) at runtime for Linux to execute when these events are triggered. \cite{torvalds_torvaldslinux_2021,using_tracepoint}
-
-% There are two events (\texttt{sys\_enter} and \texttt{sys\_exit}) defined in \texttt{/include/trace/} \texttt{events/syscalls.h} that can be exploited to execute callback function in the procedure of invloking syscall. \cite{torvalds_torvaldslinux_2021}
-
-% \subsection{Linux Process Management}
-
-% Linux uses process descriptors to represent all information about each process, such as the process priority, the address space allocated, the files allowed to be accessed, and so on. Process descriptors are all of type \texttt{task\_strcut}.  \cite{torvalds_torvaldslinux_2021,bovet_cesati_2006}
-
-% In Linux kernel, there is a macro named \texttt{current} defined in \texttt{arch/arm64/include/} \texttt{asm/current.h} (on Arm64). \texttt{current} is a pointer that refers to the process that is currently executing; precisely, the issuer of the system call. \cite{corbet_linux_2005,torvalds_torvaldslinux_2021}
-
+% In ARM64, application uses \texttt{svc \#0x0} to issue a syscall. Before the \texttt{svc} instruction, the application also needs to prepare the syscall number and parameters corresponding to the syscall.

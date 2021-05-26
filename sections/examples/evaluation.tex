@@ -2,11 +2,11 @@
 
 
 In this section, we first use a case study (\S\ref{subsec:eva-casestudy}) given
-in Figure \ref{fig:data-race} to show the complete workflow of the \TheName. 
+in Figure \ref{fig:data-race} to show the complete workflow of \TheName. 
 Next, we focus on evaluate \TheName{} with the four practical requirements
 discussed in \S\ref{sec:introduction}.
 
-We deploy the \TheName on an Armv8 Juno r2 board equipped with 6 cores (2
+We deploy \TheName on an Armv8 Juno r2 board equipped with 6 cores (2
 Cortex-A72 cores and 4 Cortex-A53 cores) and 8GB RAM based on Linaro
 deliverables Linux 5.4.50. We equip the Juno board with an SSD and allocate
 256 MB circular buffers for ETM tracing. We use this as the default setting for
@@ -138,7 +138,7 @@ use-after-free, and race).
 We execute these programs separately in our system until the bug occurs
 and then use \TheName to record. And then anaylyze the root cause of bugs.
 % We receive the identified root 
-% cause from the \TheName and confirm that it is effective for root cause analysis 
+% cause from \TheName and confirm that it is effective for root cause analysis 
 % of all the 16 bugs.
  Specifically, we manually analyze the bug by record and compare the related patches 
 of these bugs. The result indicates that the failure reports
@@ -234,7 +234,7 @@ even in high-pressure environments.
 
 \subsubsection{Performance Overhead on Real-world Programs} \label{subsec:eva-Performance-Normal}
 
-We use four real-world programs to test the \TheName for performance overhead of
+We use four real-world programs to test \TheName for performance overhead of
 normal executions, including \texttt{Pbzip2}, \texttt{Aget}, \texttt{SQLite},
 and \texttt{Memcached}. We run different fine-grained tests on each of the
 programs to simulate three different load scenarios. We run \texttt{Pbzip2} to
@@ -316,7 +316,7 @@ I also have verified on different platforms beyond ARM juno board. The specifica
 \begin{itemize}
     \item  \textbf{ARM}: Raspberry Pi 3B, Debian GNU/Linux 10 with Linux 5.10.11-v8+.
     \item \textbf{x86}: Intel Core i5-10500, Ubuntu 18.04.5 LTS with 4.15.0-142-generic.
-    \item \textbf{riscv}: Qemu 5.2.0 RISC-V virt, Linux 5.11.0.
+    \item \textbf{RISC-V}: Qemu 5.2.0 RISC-V virt, Linux 5.11.0.
 \end{itemize}
 
-Although I have not implemented all the features (e.g., recording for return address) on devices of other architectures, the core part of \TheName, i.e., collecting information and saving to file, works fine. Besides, there are some recent work to make extensions based on \TheName on riscv \cite{gdjs2_gdjs2mysisdig_2021}, which also indicates the universality of \TheName.
+Although \TheName currently does not support all features (e.g., recording for return address) on devices of other architectures, the core part of \TheName, i.e., collecting information and saving to file, works fine. Besides, there are some recent work to make extensions based on \TheName on RISC-V \cite{gdjs2_gdjs2mysisdig_2021}, which also indicates the universality of \TheName.

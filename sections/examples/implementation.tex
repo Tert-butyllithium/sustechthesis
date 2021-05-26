@@ -6,40 +6,16 @@ on an Armv8 juno board based on Linux. In our prototype of \TheName, we analyze 
 \syscall{}s. For each \syscall{}, \TheName generates a description including  return address, process id and its effects. We also use two 16 MB buffers to temporarily store
 the \syscall{} records and then dump this buffer to files when it is full. 
 
-To optimize performance, we further apply a simple encoding rule (i.e., encode the numbers to bytes) to reduce the size of record file. Besides, we simplify and rewrite \texttt{sprintf} with our version to achieve a better performance.
+In the \textit{Core Hook} part, As Figure \ref{fig:core-hook-desgin} demonstrates, the entrance hook and the exit hook inspect the parameters and the impact of a syscall, respectively. At the entrance hook, \TheName stores the syscall number and the first two parameters (i.e., saved in \texttt{x0} and \texttt{x1}) into a hashmap. The key for the hashmap is the \texttt{thread\_id} because a thread can only issue a single syscall until exit. At the exit hook, \TheName identifies the type of current syscall and applies specific capturing rules.
 
-The \TheName only incurs a low overhead in both time and space. Detailed measurement is presented
+To avoid the uncertain influence of using Linux APIs (e.g., different versions with different implementations), I re-write some interfaces relevant to string operations (e.g., \texttt{strncpy}, \texttt{sprintf}). Besides, we further apply a simple encoding rule (i.e., encode the numbers to bytes) to reduce the recording size. 
+
+The \textit{Filter} gets the filter conditions passed by the user, \TheName supports
+the filter of process id, process name, parent process id, and parent process name. The syscall satisfying all passed conditions then delivers to \textit{Record Buffer}.
+
+The \textit{Record Buffer} maintains two global buffers to store records temporarily. Considering the parallelism of syscalls (i.e., different processor can tickle syscalls at the same time), writing to buffer or writing to file needs locks to prevent data races. I choose to use spinlock before each writes operation to buffer. For file writing, I use a pair of spinlock to protect a global flag and do not set any lock to protect writing to the file itself. Although simultaneous writing to file is unacceptable, \TheName usually can not fill a buffer before the last writing is finished. The evaluation about the writing file provides in \S\ref{subsec:eva-flowaccuracy} 
+
+
+\TheName only incurs a low overhead in both time and space. Detailed measurement is presented
 in \S \ref{subsec:eva-Efficiency}.
 
-% % \subsection{Core Hook}
-
-
-% The part of \textit{core hook} aims to hook system call, i.e., inject custom code at the begin and the end of a system call. By leveraging \textit{core hook}, It is easy to get the return value of the system call and the changes to the parameters. Linux has provided many different approaches to achieve it, such as \textit{ptrace}, \textit{auditd}, \textit{Kprobe} and \textit{tracepoint}. 
-
-% I choose \textit{tracepoint} to implement our core hook, since it 
-
-% Ptrace is a system call that can be used for many things. By using ptrace,  a process can easily inspect and manipulate the internal state of another program, i.e., the target process. For example, debuggers like gdb can be used to see what processes are running \cite{ptrace2} .
-
-% The ptrace mechanism allows users to interrupt the traced process each time a system call is invoked, and then apply custom analysis. Nevertheless, The challenge is that, each time a system call is invoked, a transition from the user mode to the kernel mode is required. In Linux, it will save and restore a lot of registers (e.g., all general propose registers) at the time entering and exiting kernel mode\cite{torvalds_torvaldslinux_2021}. Therefore, we do not implement \textit{core hook} by ptrace.
-
-
-% It should be clear why ptrace is not efficient: each original signal mode switch becomes multiple mode switches. Therefore, our \textit{core hook} cannot develop basd on ptrace.
-
-% \subsubsection{auditd}
-
-% It is also very slow.
-
-% \subsection{Kprobe}
-
-% But Kprobe, with too limited in features. Kprobe-based event tracers used by perf, which did not allow the ability to dereference arbitrarily complex structures and severely limited the ability to introduce custom logic in the instrumentation phase
-
-
-% \subsection{Filter}
-
-% We get the process descriptor of syscall issuer (the process using the syscall) via \texttt{current}, and compare it with conditions passed in.
-
-% \subsection{Record buffer}
-
-% The buffer is a circular queue. And there is also a number indicating the usage of the buffer. 
-
-% The most sophisticated component is to share the buffer between kernel space to user space. 

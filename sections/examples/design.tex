@@ -97,12 +97,12 @@ Hence, it is necessary to record the content of syscall \texttt{read} to figure 
         return value 2 & arg0                      & arg1 &
         arg2                                                               \\
         \midrule
-        arm64                     & w8                        & x0   & x1
+        ARM64                     & w8                        & x0   & x1
                                   & x0                        & x1   & x2  \\
         x86-64                    & rax                       & rax  &
         rdx                       & rdi                       & rsi  & rdx
         \\
-        riscv                     & a7                        & a0   & a1
+        RISC-V                     & a7                        & a0   & a1
                                   & a0                        & a1   & a2  \\
         \bottomrule
     \end{tabular}
@@ -115,13 +115,13 @@ Hence, it is necessary to record the content of syscall \texttt{read} to figure 
 \textit{Core hook} utilizes \textit{Linux Kernel Tracepoints} \cite{mathieu2021using}, which
 provides lightweight hook points in critical positions over the kernel
 (includes the enter and exit of \syscall{}), to achieve the capture.  Figure \ref{fig:core-hook-desgin} illustrates the procedure of \syscall{}s
-(defined at function \texttt{el0\_svc\_\\common} for Arm64) and the recording for \syscall{}s. 
+(defined at function \texttt{el0\_svc\_\\common} for ARM64) and the recording for \syscall{}s. 
 
 
 When entering a \syscall{}, the kernel goes into \textit{syscall entrance
 hook} which stores values of involved registers. As Table
 \ref{table:arch_registers} shows, the register \texttt{x0} and \texttt{x1} are used as both
-parameters and return values of \syscall{}s on Arm64. Thus, these registers are
+parameters and return values of \syscall{}s on ARM64. Thus, these registers are
 overwritten by return values during \syscall{} procedure. Consequently, we may not
 obtain the \syscall{} parameters at the \textit{syscall exit hook} directly.
 However, these parameters are critical in some cases. For example, as Figure
@@ -158,8 +158,8 @@ in this category, we can directly record the memory or register they changed.
 
 \item
 \noindent\textbf{W}\textit{riting} \textbf{S}\textit{tatus}: 
-The WS-Type \syscall{}s
-changes the status of the system. As the WS-Type \syscall{}s do not
+The \textit{WS-Type} \syscall{}s
+changes the status of the system. As the \textit{WS-Type} \syscall{}s do not
 directly change the memory and registers of the program, we ignore
 them unless they fail and return an error code. 
 For example, the \syscall{} \texttt{epoll\_create} in \texttt{epoll} API
