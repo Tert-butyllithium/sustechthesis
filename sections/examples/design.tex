@@ -2,9 +2,9 @@
 The overarching target of \TheName is to capture all syscalls issued by target application with low overhead. Specifically, it has the following characteristics:
 
 \begin{itemize}
-    \item \textbf{online:} Our scenario is that our entire record system can  run simultaneously on the user side and eventually become a part of the log report. Therefore it must introduce only a extremely low overhead to guarantee that the user can run the desired program without perception.
-    \item \textbf{complete:} We also need to ensure the integrity of record results, i.e. that every syscall is correctly captured with all the data needed for reproduction. Not only do we need to verify the correctness of our records on each syscall, but we also have to guarantee that the data in the buffer is fetched in a timely manner without any overflow.
-    \item \textbf{off-the-shore:} An practical system should never make assumptions about the hardware. \TheName is desgined completely based on the off-the-shelf hardware.
+    \item \textbf{low overhead:} Our scenario is that our entire record system can  run simultaneously on the user side and eventually become a part of the log report. Therefore it must introduce only a extremely low overhead to guarantee that the user can run the desired program without perception.
+    \item \textbf{complete record:} We also need to ensure the integrity of record results, i.e. that every syscall is correctly captured with all the data needed for reproduction. Not only do we need to verify the correctness of our records on each syscall, but we also have to guarantee that the data in the buffer is fetched in a timely manner without any overflow.
+    \item \textbf{off-the-shelf hardware:} An practical system should never make assumptions about the hardware. \TheName is desgined completely based on the off-the-shelf hardware.
     \item \textbf{without modification to application:} We do not make any changes to the source code or binary of the target application. The entire code of our system runs in kernel space, except for the transfer of logged results that need to be transferred to user space. This means that \TheName cares nothing about how the target application in user space is executed, but only about the event that this target application jumps to the kernel state.
     \item \textbf{without modification to kernel:} Modifying Kernel source may make all procedures much more easy. However, this approach will inevitably reduce the compatibility of \TheName, especially for devices whose kernels have been modified by manufacturers. Futhermore, to modify kernel, we would also need to synchronize upstream changes. Consequently, \TheName is baesd on kernel moudle and works as a loadbale driver.
 \end{itemize}
@@ -53,7 +53,7 @@ As Figure \ref{fig:arch} shows, in the kernel space, \textit{core hook} collect 
     if (len < 15)
       strcpy(buf, big_buf);
       total += len;
-  assert(total<30)
+  assert(total < 30)
     \end{lstlisting}    
     \end{minipage}
   

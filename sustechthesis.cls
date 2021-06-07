@@ -47,6 +47,10 @@
   \ClassError{sustechthesis}{NotImplementedError}
 \fi
 
+\RequirePackage{fontspec}
+
+\setmainfont{Times New Roman} %英文默认为Times New Roman
+
 \RequirePackage{geometry}
   \geometry{a4paper,top=2.5cm,bottom=2.0cm,left=3.0cm,right=2.5cm}
 \RequirePackage{amssymb}
@@ -89,13 +93,13 @@
     % 需要使用ctexart文类，否则报错键不存在
     section = {
       name={{},.},
-      format={\hspace*{-1.5em}\粗体 \黑体\三号},
+      format={\hspace*{-1.5em}\黑体\三号},
     },
     subsection = {
-      format={\黑体\四号\粗体},
+      format={\黑体\四号},
     },
     subsubsection = {
-      format={\黑体\小四\粗体},
+      format={\黑体\小四},
     },
   }
 \RequirePackage[MSWordLineSpacingMultiple=1.5]{zhlineskip}
@@ -105,7 +109,8 @@
     {\linespread{2.14}\selectfont}
 \RequirePackage{tocloft}
   % 设置目录样式
-  \renewcommand\cfttoctitlefont{\hfill\黑体\小二}
+  % \renewcommand\cfttoctitlefont{\hfill\黑体\小二\hfill}
+  \renewcommand{\contentsname}{\hfill\Large\normalfont Contents\hfill}   
   \renewcommand\cftaftertoctitle{\hfill}
   \renewcommand\cftsecfont{\粗体\宋体\四号}
   \renewcommand\cftsecpagefont{\粗体\宋体\四号}
@@ -250,7 +255,7 @@
 \RequirePackage{listofitems}
 \newcommand\摘要标题{
   \begin{center}
-    \textsc{\黑体\二号\题目@中\\\子标题@英}
+    \黑体\二号\题目@英\\\子标题@英
     \vskip 1cm
     \宋体\四号\姓名@英 \\[9pt]
     (\楷书\小四\系别@英\phantom{空}Advisor: \指导老师@英)
@@ -293,13 +298,13 @@
   \addtocounter{section}{1}
   \sectionmark{附录}
   \begin{center}
-    \黑体\三号 Appendix
+    \三号 Appendix
   \end{center}
   \appendix
 }
 % 致谢
 \newcommand{\致谢}{
-  \addcontentsline{toc}{section}{Acknowledgement}
+  % \addcontentsline{toc}{section}{Acknowledgement}
   \sectionmark{致谢}
   \section*{\centerline{Acknowledgement}}
 }

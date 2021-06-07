@@ -10,7 +10,7 @@ would require additional capturer in user-space. Moreover, the noninitialized va
 
 Currently, \TheName works perfectly on ARM devices. In my evaluation, it also runs normally on the x86 platform except for recording the return address. The only difference among these architectures is the approach to obtaining the registers differs. I will add supports for other platforms in the future.
 
-Although \TheName performs well in common scenarios with only 4.88\% overhead at most, I can still apply many optimizations. For example, different record formats for different system calls are still a problem, and my current solution is to name each item. Therefore, records likes \texttt{pid=14311, accept4, res=3} (with the attribute name \texttt{pid} and \texttt{res}) additionally consumes a considerable amount of space. In the future, I need to classify the format of the record to reduce the space occupation of records.
+Although \TheName performs well in common scenarios with only 5.3\% overhead at most, I can still apply many optimizations. For example, different record formats for different system calls are still a problem, and my current solution is to name each item. Therefore, records likes \texttt{pid=14311, accept4, res=3} (with the attribute name \texttt{pid} and \texttt{res}) additionally consumes a considerable amount of space. In the future, I need to classify the format of the record to reduce the space occupation of records.
 
 
 In addition, \Filter of \TheName can only support limited conditions. To make \TheName more practical, some basic logic operators (e.g., \texttt{AND}, \texttt{OR} and \texttt{NOT}) should also be supported.

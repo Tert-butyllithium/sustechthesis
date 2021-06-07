@@ -8,15 +8,15 @@
 % logo 设置
 \usepackage{textpos}
   \addtobeamertemplate{frametitle}{}{%
-    \begin{textblock*}{100mm}(.85\textwidth,-0.7cm)
-      \includegraphics[height=0.5cm]{figures/logo/SUSTech-zh.pdf}
+    \begin{textblock*}{100mm}(.79\textwidth,-0.7cm)
+      \includegraphics[height=0.5cm]{figures/logo/SUSTech-en.pdf}
     \end{textblock*}
   }
 \mode<presentation>{
   \setbeamercovered{transparent}}
 % 字体与主题
 \setbeamertemplate{navigation symbols}{}
-\usetheme{CambridgeUS} % or other themes, see http://www.hartwork.org/beamer-theme-matrix/
+\usetheme{AnnArbor} % or other themes, see http://www.hartwork.org/beamer-theme-matrix/
 \usefonttheme{professionalfonts}
 \usefonttheme[onlymath]{serif}
 % 标题页
@@ -24,7 +24,7 @@
   \begin{frame}
     \titlepage
     \vfill\hfill
-    \inserttitlegraphic{\includegraphics[height=0.5cm]{figures/logo/SUSTech-zh.pdf}}
+    \inserttitlegraphic{\includegraphics[height=0.5cm]{figures/logo/SUSTech-en.pdf}}
   \end{frame}
   \addtocounter{framenumber}{-1}
 }
@@ -67,3 +67,24 @@
   \setbeamercolor*{block body}{fg=black,bg=black!10}
   \setbeamercolor*{block body alerted}{fg=black,bg=black!10}
   \setbeamercolor*{block body example}{fg=black,bg=black!10}
+  \usepackage{abbrevs}
+  \makeatletter
+  \renewcommand\maybe@space@{%
+    \maybe@ictrue % <= this is new
+    \expandafter   \@tfor
+      \expandafter \reserved@a
+      \expandafter :%
+      \expandafter =%
+                   \nospacelist
+                   \do \t@st@ic
+    \ifmaybe@ic % <= this is new
+      \space
+    \fi
+  }
+  
+  \usepackage{listings}
+  \lstset{basicstyle=\ttfamily\small, breaklines=true, numbers=left}
+  \usepackage{multicol}
+  \usepackage{booktabs}
+  \usepackage{multirow}
+

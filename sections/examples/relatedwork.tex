@@ -20,7 +20,11 @@ user space,
 which means that the supervisor needs to capture data with several
 context switches (between target process with supervisor).
 
-Some \textbf{Record and replay systems} propose to perform the recording only in the application layer. //TODO(cyrus,r2,liblog)
+Some \textbf{record and replay systems} propose to perform the recording only on a higher level, which inspects the impact of library functions and only needs user privileges. Because most syscalls are essentially issued by library functions (in C/C++, all syscalls in C format are wrapped by \texttt{glibc}), these systems can also record the non-determinism from syscalls. Besides, application-level record and replay systems can also reduce the record size as they can neglect the implementation details inside higher-level interfaces. However, inspecting the high level interfaces 
+
+% \texttt{liblog} is //TODO
+
+R2 \cite{guo_r2_2008} provides recording on syscalls by capturing its corresponding library function. In contrast to \TheName without assumption in source code, the developer explicitly chooses which functions to be recorded. Further, the developer needs to understand the detail of library functions they use to perform the record successfully without redundancy or insufficiency. 
 
 
 Some \textbf{Linux troubleshooting tools} can also capture syscalls, as they monitor the target application and captures data

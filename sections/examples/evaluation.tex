@@ -18,36 +18,34 @@ our experiment but also allowed developers to adjust it as required.
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
 \begin{table*}[]
-    \caption{Tailored Control Flow And Data Flow for Figure~\ref{fig:data-race}}
+    \caption{Syscall Capturing Result for Figure~\ref{fig:data-race}}
     \label{study_case_flow}
     \centering
     \scalebox{0.62}{
     \begin{tabular}{@{}llll@{}}
         \toprule
-        \textbf{Block} & \textbf{Thread 1}                           & \textbf{Thread 2}                                       & \textbf{Data Values}                                          \\ \midrule
-        A              &                                             & bl 400910 \textless{}strlen@plt\textgreater{}           & total=0, len=0, buf=?                                          \\
-        B              & bl 400960 \textless{}read@plt\textgreater{} &                                                         & read, fd=3, size=64, res=25,  data="1234567890123456789012345" \\
-        C              &                                             & bl 400970 \textless{}strcpy@plt\textgreater{}           & total=0, len=875770417, buf=“123456789012345"                  \\
-        D              & bl 400960 \textless{}read@plt\textgreater{} &                                                         & read, fd=4, size=64, res=6, data="123456"                      \\
-        E              &                                             & bl 400910 \textless{}strlen@plt\textgreater{}           &                                                                \\
-        F              &                                             & bl 400970 \textless{}strcpy@plt\textgreater{}           & total=875770423, len=6, buf="123456"                           \\
-        G              &                                             & bl 400940 \textless{}\_\_assert\_fail@plt\textgreater{} &                                                                \\ \bottomrule
+        \textbf{Line} & \textbf{Thread 1}                           & \textbf{Thread 2}                                       & \textbf{Data Values}                                          \\ \midrule
+        10              &                                             & bl 400910 \textless{}strlen@plt\textgreater{}           & total=0, len=0, buf=?                                          \\
+        4              & bl 400960 \textless{}read@plt\textgreater{} &                                                         & read, fd=3, size=64, res=25,  data="1234567890123456789012345" \\
+        12              &                                             & bl 400970 \textless{}strcpy@plt\textgreater{}           & total=0, len=875770417, buf=“123456789012345"                  \\
+        4              & bl 400960 \textless{}read@plt\textgreater{} &                                                         & read, fd=4, size=64, res=6, data="123456"                      \\
+        10              &                                             & bl 400910 \textless{}strlen@plt\textgreater{}           &                                                                \\
+        12              &                                             & bl 400970 \textless{}strcpy@plt\textgreater{}           & total=875770423, len=6, buf="123456"                           \\
+        14              &                                             & bl 400940 \textless{}\_\_assert\_fail@plt\textgreater{} &                                                                \\ \bottomrule
     \end{tabular}
     }
 \end{table*}
 
 To evaluate the functionality of \TheName, we test it with the program shown in
 Figure \ref{fig:data-race}. As Table \ref{study_case_flow} illustrates, 
-it is clear that Thread 2 checks the length of \texttt{big\_buf} (Line 10, 
-Block 2-A) before the first \texttt{read} (Line 4, Block 1-B) in Thread 1. Since 
+it is clear that Thread 2 checks the length of \texttt{big\_buf} (Line 10) before the first \texttt{read} (Line 4) in Thread 1. Since 
 we capture the data of \texttt{read}, we know that the \texttt{big\_buf} contains 
-a string with length 25. Therefore, the following \texttt{strcpy} (Line 12, 
-Block 2-C) incurs a buffer overflow, and the variable \texttt{len} (Line 7) 
+a string with length 25. Therefore, the following \texttt{strcpy} (Line 12) incurs a buffer overflow, and the variable \texttt{len} (Line 7) 
 is unexpectedly changed to \texttt{875770417}, which finally leads to the failure 
-of the \texttt{assert} (Line 14, Block 2-G). 
+of the \texttt{assert} (Line 14). 
 
 It is notable that the program does not crash immediately after the buffer 
-overflow. In contrast, it executes normally for the second cycle (Block D to F). 
+overflow. In contrast, it executes normally for the second cycle. 
 In addition, the normal execution of the second time overwrites the 
 values (\texttt{buf} and \texttt{len}) involved in the buffer overflow, which 
 may confuse developers without the assistance of \TheName.
@@ -208,7 +206,7 @@ scenario. We finally evaluate the runtime performance overhead of \TheName by ru
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{figures/unixbenchoverheadbar.pdf}
-    \caption{Performance overhead of running UnixBench with ETM tracing and non-deterministic event TheName.}
+    \caption{Performance overhead of UnixBench}
     \label{fig:Performance overhead of running UnixBench}
 \end{figure}
 
@@ -250,7 +248,7 @@ connections to a Memcached server running on localhost.
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{figures/normaloverheadbar.pdf}
-    \caption{Performance overhead of 4 real-world prgrams execution enables ETM tracing and non-deterministic event TheName with library hook.}
+    \caption{Performance overhead of 4 real-world programs}
     \label{fig:Performance overhead of Normal Execution}
 \end{figure}
 
@@ -310,7 +308,7 @@ the beginning 256 bytes.
 
 \subsection{Universality} \label{subsec:eva-Generality}
 
-In this section, we shows \TheName is a universal tool for almost all Linux devices. \TheName is basically a kernel module that does not need any dependency. All functions of \TheName are implemented in Linux kenrel, whcih indicates that \TheName is architecture-independent.
+In this section, we shows \TheName is a universal tool for almost all Linux devices. \TheName is basically a kernel module that does not need any dependency. All functions of \TheName are implemented in Linux kenrel, which indicates that \TheName is architecture-independent.
 
 I also have verified on different platforms beyond ARM juno board. The specifications of these platforms are as follows.
 \begin{itemize}
