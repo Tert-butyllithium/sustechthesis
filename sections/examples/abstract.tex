@@ -1,5 +1,14 @@
 % !Mode:: "TeX:UTF-8" !TEX program  = xelatex
 
+\begin{中文摘要}{Linux，系统调用，记录}
+    错误诊断往往很困难，为完成诊断，其第一步是重现错误。然而在应用开发等领域，开发人员通常只能依靠用户上传的报告日志来尝试重现错误。
+    不幸的是，要在开发环境中重现发生在生产环境中的错误仍然是一个挑战。重现的主要障碍是运行时的非决定性事件，如系统调用。因此，同样的执行可能导致不同的结果。
+
+    在这篇论文中，我提出了 \TheName ，一个用于记录Linux上系统调用的实用工具。\TheName 利用Linux的Tracepoints来钩住系统调用。
+    \TheName 为每个系统调用收集与它们的效果有关的信息，这进一步帮助开发者重现和修复错误。我实现了一个 \TheName 的原型，并通过真实世界的应用对其进行评估。结果表明，\TheName 完整而有效地捕获了系统调用。
+\end{中文摘要}
+
+
 \begin{英文摘要}{Linux, Syscall, Record}
     Bug diagnosis is difficult. The first step of bug diagnosis is to reproduce the bug. In areas such as application development, developers usually can only rely on the report logs uploaded by the user to try to reproduce bugs.
     Unfortunately, it is still challenging to reproduce bugs that occurred in the production environment at the development environment. The primary obstacle of reproduction is non-deterministic events at runtime, such as system calls. Hence,  the same execution may lead to different results.
